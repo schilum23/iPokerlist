@@ -81,10 +81,8 @@
 			children = (
 				2CCE29DC1AAC9B9400FD0A57 /* AppDelegate.swift */,
 				2CCE29E11AAC9B9400FD0A57 /* ViewController.swift */,
-				2CCE29E31AAC9B9400FD0A57 /* Main.storyboard */,
-				2CCE29E61AAC9B9400FD0A57 /* Images.xcassets */,
-				2CCE29E81AAC9B9400FD0A57 /* LaunchScreen.xib */,
-				2CCE29DE1AAC9B9400FD0A57 /* iPokerlist.xcdatamodeld */,
+				2CCE29FF1AAC9CAE00FD0A57 /* Classes */,
+				2CCE2A001AAC9CB900FD0A57 /* Helpclasses */,
 				2CCE29DA1AAC9B9400FD0A57 /* Supporting Files */,
 			);
 			path = iPokerlist;
@@ -93,6 +91,10 @@
 		2CCE29DA1AAC9B9400FD0A57 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				2CCE29DE1AAC9B9400FD0A57 /* iPokerlist.xcdatamodeld */,
+				2CCE29E31AAC9B9400FD0A57 /* Main.storyboard */,
+				2CCE29E61AAC9B9400FD0A57 /* Images.xcassets */,
+				2CCE29E81AAC9B9400FD0A57 /* LaunchScreen.xib */,
 				2CCE29DB1AAC9B9400FD0A57 /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -113,6 +115,20 @@
 				2CCE29F41AAC9B9400FD0A57 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2CCE29FF1AAC9CAE00FD0A57 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		2CCE2A001AAC9CB900FD0A57 /* Helpclasses */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Helpclasses;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
