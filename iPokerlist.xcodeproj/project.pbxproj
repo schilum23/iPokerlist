@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C5493B41AB0CA95005F0D19 /* ScoreGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */; };
+		2CAD85351AAE27DD009EDA67 /* PersonsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAD85341AAE27DD009EDA67 /* PersonsViewController.swift */; };
+		2CAD85371AAE27FA009EDA67 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAD85361AAE27FA009EDA67 /* AlertViewController.swift */; };
+		2CC387C31AAF6B610007B889 /* Scores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC387C21AAF6B610007B889 /* Scores.swift */; };
 		2CCE29DD1AAC9B9400FD0A57 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE29DC1AAC9B9400FD0A57 /* AppDelegate.swift */; };
 		2CCE29E01AAC9B9400FD0A57 /* iPokerlist.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE29DE1AAC9B9400FD0A57 /* iPokerlist.xcdatamodeld */; };
 		2CCE29E21AAC9B9400FD0A57 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE29E11AAC9B9400FD0A57 /* ViewController.swift */; };
@@ -14,6 +18,13 @@
 		2CCE29E71AAC9B9400FD0A57 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CCE29E61AAC9B9400FD0A57 /* Images.xcassets */; };
 		2CCE29EA1AAC9B9400FD0A57 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CCE29E81AAC9B9400FD0A57 /* LaunchScreen.xib */; };
 		2CCE29F61AAC9B9400FD0A57 /* iPokerlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE29F51AAC9B9400FD0A57 /* iPokerlistTests.swift */; };
+		2CCE2A021AAC9D7200FD0A57 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A011AAC9D7200FD0A57 /* Extensions.swift */; };
+		2CCE2A041AAC9D8700FD0A57 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A031AAC9D8700FD0A57 /* Functions.swift */; };
+		2CCE2A061AAC9DB000FD0A57 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A051AAC9DB000FD0A57 /* Data.swift */; };
+		2CCE2A081AAC9DBF00FD0A57 /* Persons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A071AAC9DBF00FD0A57 /* Persons.swift */; };
+		2CCE2A0A1AACA26800FD0A57 /* Results.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A091AACA26800FD0A57 /* Results.swift */; };
+		2CCE2A0C1AACC16700FD0A57 /* ResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A0B1AACC16700FD0A57 /* ResultsViewController.swift */; };
+		2CCE2A0E1AACC1E500FD0A57 /* iUIDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A0D1AACC1E500FD0A57 /* iUIDatePicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,6 +38,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreGroups.swift; sourceTree = "<group>"; };
+		2CAD85341AAE27DD009EDA67 /* PersonsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersonsViewController.swift; sourceTree = "<group>"; };
+		2CAD85361AAE27FA009EDA67 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
+		2CC387C21AAF6B610007B889 /* Scores.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scores.swift; sourceTree = "<group>"; };
 		2CCE29D71AAC9B9400FD0A57 /* iPokerlist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iPokerlist.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CCE29DB1AAC9B9400FD0A57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2CCE29DC1AAC9B9400FD0A57 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -38,6 +53,13 @@
 		2CCE29EF1AAC9B9400FD0A57 /* iPokerlistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iPokerlistTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CCE29F41AAC9B9400FD0A57 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2CCE29F51AAC9B9400FD0A57 /* iPokerlistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPokerlistTests.swift; sourceTree = "<group>"; };
+		2CCE2A011AAC9D7200FD0A57 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		2CCE2A031AAC9D8700FD0A57 /* Functions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
+		2CCE2A051AAC9DB000FD0A57 /* Data.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
+		2CCE2A071AAC9DBF00FD0A57 /* Persons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Persons.swift; sourceTree = "<group>"; };
+		2CCE2A091AACA26800FD0A57 /* Results.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Results.swift; sourceTree = "<group>"; };
+		2CCE2A0B1AACC16700FD0A57 /* ResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultsViewController.swift; sourceTree = "<group>"; };
+		2CCE2A0D1AACC1E500FD0A57 /* iUIDatePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iUIDatePicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +103,8 @@
 			children = (
 				2CCE29DC1AAC9B9400FD0A57 /* AppDelegate.swift */,
 				2CCE29E11AAC9B9400FD0A57 /* ViewController.swift */,
+				2CCE2A0B1AACC16700FD0A57 /* ResultsViewController.swift */,
+				2CAD85341AAE27DD009EDA67 /* PersonsViewController.swift */,
 				2CCE29FF1AAC9CAE00FD0A57 /* Classes */,
 				2CCE2A001AAC9CB900FD0A57 /* Helpclasses */,
 				2CCE29DA1AAC9B9400FD0A57 /* Supporting Files */,
@@ -120,6 +144,11 @@
 		2CCE29FF1AAC9CAE00FD0A57 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				2CCE2A051AAC9DB000FD0A57 /* Data.swift */,
+				2CCE2A071AAC9DBF00FD0A57 /* Persons.swift */,
+				2CCE2A091AACA26800FD0A57 /* Results.swift */,
+				2CC387C21AAF6B610007B889 /* Scores.swift */,
+				2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -127,6 +156,10 @@
 		2CCE2A001AAC9CB900FD0A57 /* Helpclasses */ = {
 			isa = PBXGroup;
 			children = (
+				2CCE2A0D1AACC1E500FD0A57 /* iUIDatePicker.swift */,
+				2CCE2A011AAC9D7200FD0A57 /* Extensions.swift */,
+				2CCE2A031AAC9D8700FD0A57 /* Functions.swift */,
+				2CAD85361AAE27FA009EDA67 /* AlertViewController.swift */,
 			);
 			name = Helpclasses;
 			sourceTree = "<group>";
@@ -232,8 +265,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CCE29E21AAC9B9400FD0A57 /* ViewController.swift in Sources */,
+				2CCE2A081AAC9DBF00FD0A57 /* Persons.swift in Sources */,
+				2CCE2A0A1AACA26800FD0A57 /* Results.swift in Sources */,
+				2CCE2A061AAC9DB000FD0A57 /* Data.swift in Sources */,
 				2CCE29DD1AAC9B9400FD0A57 /* AppDelegate.swift in Sources */,
+				2CCE2A0E1AACC1E500FD0A57 /* iUIDatePicker.swift in Sources */,
+				2C5493B41AB0CA95005F0D19 /* ScoreGroups.swift in Sources */,
+				2CAD85351AAE27DD009EDA67 /* PersonsViewController.swift in Sources */,
+				2CC387C31AAF6B610007B889 /* Scores.swift in Sources */,
+				2CAD85371AAE27FA009EDA67 /* AlertViewController.swift in Sources */,
+				2CCE2A0C1AACC16700FD0A57 /* ResultsViewController.swift in Sources */,
 				2CCE29E01AAC9B9400FD0A57 /* iPokerlist.xcdatamodeld in Sources */,
+				2CCE2A041AAC9D8700FD0A57 /* Functions.swift in Sources */,
+				2CCE2A021AAC9D7200FD0A57 /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,6 +471,7 @@
 				2CCE29FB1AAC9B9400FD0A57 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2CCE29FC1AAC9B9400FD0A57 /* Build configuration list for PBXNativeTarget "iPokerlistTests" */ = {
 			isa = XCConfigurationList;
@@ -435,6 +480,7 @@
 				2CCE29FE1AAC9B9400FD0A57 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
