@@ -31,6 +31,7 @@ class Results: NSObject {
     var moneyWin: Double = 0
     var ratio: Double = 0
     var error: NSError?
+    var oPER: Persons = Persons()
     
     override init() {
         super.init()

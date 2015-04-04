@@ -15,33 +15,32 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     var selectionBar: UIView!
     var toolBar: UIToolbar!
     var lastY:CGFloat = 0
-    var data = Data()
+    var data: Data?
     var arrayScoresYear: [Scores]?
     var openSection = -1
     var tableViewResults = UITableView()
     var tableViewScores = UITableView()
     var tableViewScoresByYear = UITableView()
     var picker = UIPickerView()
+    var year = 0
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.data = Data()
+        arrayScoresYear = data!.arrayGroupedScores.first?.arrayScores
+        year = vInt(data!.arrayGroupedScores.first?.groupName)
         setupViews()
         
-        arrayScoresYear = data.arrayGroupedScores.first?.arrayScores
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        if data.changed {
+        if data!.changed {
             
-            picker.reloadAllComponents()
-            arrayScoresYear = data.arrayGroupedScores[picker.selectedRowInComponent(0)].arrayScores
-
-            tableViewScoresByYear.reloadData()
-            tableViewScores.reloadData()
-            data.changed = false
+            setupViews()
+            data!.changed = false
         }
     }
     
@@ -86,7 +85,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             tableView.tag = i
             tableView.dataSource = self
             tableView.delegate = self
-            tableView.backgroundColor = UIColor.blackColor()
+            tableView.backgroundColor = UIColor.whiteColor()
             tableView.separatorStyle = UITableViewCellSeparatorStyle.None
             tableView.registerClass(UITableViewCell.classForCoder(), forCellReuseIdentifier: "cell")
             tableView.frame.origin.x += CGFloat(i) * self.view.frame.width
@@ -98,14 +97,14 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             
             if (i == 1) {
                 
-                tableView.frame.size.height -= 107
+                tableView.frame.size.height -= 105
                 tableViewScoresByYear = tableView
                 
                 // Pikcer Year
                 picker = UIPickerView(frame: CGRectMake(0, scrollView.frame.height - 161, frame.width, 0))
                 
                 picker.frame.origin.x += CGFloat(i) * self.view.frame.width
-                picker.backgroundColor = UIColor.purpleColor()
+                picker.backgroundColor = UIColor.lightGrayColor()
                 picker.dataSource = self
                 picker.delegate = self
                 scrollView.addSubview(picker)
@@ -169,7 +168,10 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     
     func settingsButtonAction(button: UIButton) {
         
-        
+        let settingsView = SettingsViewController()
+        settingsView.data = data
+        self.presentViewController(settingsView, animated: true, completion: nil)
+
     }
     
     // Neues Ergbnis
@@ -199,7 +201,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         case 1:
             numberOfSectionsInTableView = 1
         case 2:
-            numberOfSectionsInTableView = data.arrayGroupedResults.count
+            numberOfSectionsInTableView = data!.arrayGroupedResults.count
         default:
             numberOfSectionsInTableView = 1
         }
@@ -227,7 +229,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         var btnHeader = UIButton(frame: CGRectMake(0, 0, tableView.frame.width, 44))
-        var oRES = data.arrayGroupedResults[section].first!
+        var oRES = data!.arrayGroupedResults[section].first!
         
         btnHeader.tag = section
         tableViewResults = tableView
@@ -267,7 +269,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
-        var oRES = data.arrayGroupedResults[section].first!
+        var oRES = data!.arrayGroupedResults[section].first!
         var header = ""
         
         switch tableView.tag {
@@ -291,11 +293,11 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         
         switch tableView.tag {
         case 0:
-            numberOfRows = data.arrayScores.count
+            numberOfRows = data!.arrayScores.count
         case 1:
             numberOfRows = vInt(arrayScoresYear?.count)
         case 2:
-            numberOfRows = (section == openSection) ? data.arrayGroupedResults[section].count : 0
+            numberOfRows = (section == openSection) ? data!.arrayGroupedResults[section].count : 0
         default:
             numberOfRows = 0
         }
@@ -304,7 +306,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 44
+        return 46
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
@@ -314,6 +316,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         // Cell Layout
         if cell == nil {
             cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
+            //cell?.selectionStyle = UITableViewCellSelectionStyle.None
             
             switch tableView.tag {
             case 0, 1:
@@ -349,13 +352,16 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         switch tableView.tag {
         case 0:
             
-            let oSCO = data.arrayScores[indexPath.row]
+            let oSCO = data!.arrayScores[indexPath.row]
      
             (cell!.viewWithTag(1) as UILabel).text = vString(indexPath.row + 1)
             (cell!.viewWithTag(2) as UILabel).text = oSCO.name
             (cell!.viewWithTag(3) as UILabel).text = String(format: "%.2f", vDouble(oSCO.ratio))
 
-
+            
+            (cell!.viewWithTag(1) as UILabel).font = oSCO.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            (cell!.viewWithTag(2) as UILabel).font = oSCO.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            (cell!.viewWithTag(3) as UILabel).font = oSCO.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
 
         case 1:
             
@@ -364,10 +370,17 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             (cell!.viewWithTag(1) as UILabel).text = vString(indexPath.row + 1)
             (cell!.viewWithTag(2) as UILabel).text = oSCO?.name
             (cell!.viewWithTag(3) as UILabel).text = String(format: "%.2f", vDouble(oSCO?.ratio))
+            
+            
+            (cell!.viewWithTag(1) as UILabel).font = oSCO?.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            (cell!.viewWithTag(2) as UILabel).font = oSCO?.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            (cell!.viewWithTag(3) as UILabel).font = oSCO?.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+
+
 
         case 2:
             
-            let oRES = data.arrayGroupedResults[indexPath.section][indexPath.row]
+            let oRES = data!.arrayGroupedResults[indexPath.section][indexPath.row]
             
             cell?.textLabel?.text = oRES.name
             cell?.detailTextLabel?.text = "In: \(oRES.chipsIn) Out: \(oRES.chipsOut) MoneyIn: \(oRES.moneyIn) Verhätnis: \(oRES.ratio)"
@@ -380,22 +393,47 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
        
     }
     
+    // Zeilen Klick - Spieler Statistik aurufen
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        var oSCO: Scores?
+        switch tableView.tag {
+        case 0:
+            oSCO = data!.arrayScores[indexPath.row]
+        case 1:
+            oSCO = arrayScoresYear?[indexPath.row]
+        default:
+            oSCO = nil
+        }
+
+        
+        if tableView.tag == 0 || tableView.tag == 1 {
+            let personsStatsView = PersonsStatsViewController()
+            personsStatsView.data = data
+            personsStatsView.PER_ID = oSCO!.PER_ID
+            personsStatsView.year = (tableView.tag  == 1) ? year : 0
+            personsStatsView.oSCO = oSCO
+            self.presentViewController(personsStatsView, animated: true, completion: nil)
+        }
+    }
+    
     // MARK: - PickerView
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
         return 1
     }
     
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String! {
-        return data.arrayGroupedScores[row].groupName
+        return data!.arrayGroupedScores[row].groupName
     }
     
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return data.arrayGroupedScores.count
+        return data!.arrayGroupedScores.count
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         
-        arrayScoresYear = data.arrayGroupedScores[row].arrayScores
+        arrayScoresYear = data!.arrayGroupedScores[row].arrayScores
+        year = vInt(data!.arrayGroupedScores[row].groupName)
         tableViewScoresByYear.reloadData()
     }
     

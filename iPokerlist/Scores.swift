@@ -17,12 +17,18 @@ class Scores: NSObject {
     var chipsOut: Double = 0
     var ratio: Double = 0
     var games: Int = 1
+    var moneyIn: Double = 0
+    var moneyOut: Double = 0
+    var maxWin: Double = 0
+    var ratioMax: Double = 0
+
+    var oPER: Persons = Persons()
     
     override init() {
         super.init()
     }
     
-    init(PER_ID: Int, name: String, chipsIn: Double, chipsOut: Double, position: Int) {
+    init(PER_ID: Int, name: String, chipsIn: Double, chipsOut: Double, moneyIn: Double, moneyOut: Double, position: Int) {
         super.init()
         
         self.PER_ID = PER_ID
@@ -30,7 +36,12 @@ class Scores: NSObject {
         self.chipsIn += chipsIn
         self.chipsOut += chipsOut
         self.position = position
-        
+        self.moneyIn = moneyIn
+        self.moneyOut = moneyOut
+        self.position = position
+        self.maxWin = (moneyOut - moneyIn)
+        self.ratioMax = chipsOut / vDouble((chipsIn != 0 ? chipsIn : 1)) * 100.00
+
     }
 
     

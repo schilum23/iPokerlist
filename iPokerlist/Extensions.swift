@@ -15,7 +15,7 @@ class Extensions: NSObject {
 // Default Navigation Bar
 public extension UINavigationBar {
     
-    func defaultNavigationBar(title: String, viewController: UIViewController, lBTitle: String, lBFunc: String, rBTitle: String, rBFunc: String) {
+    func defaultNavigationBar(title: String, viewController: UIViewController, lBTitle: String, lBFunc: String, rBTitle: String?=nil, rBFunc: String?=nil) {
         
         self.frame = CGRectMake(0, 20, viewController.view.frame.width, 44)
         self.backgroundColor = UIColor.whiteColor()
@@ -24,10 +24,14 @@ public extension UINavigationBar {
         self.items = [navItem]
         
         var lButton = UIBarButtonItem(title: lBTitle, style: UIBarButtonItemStyle.Bordered, target: viewController, action: Selector(lBFunc))
-        var rButton = UIBarButtonItem(title: rBTitle, style: UIBarButtonItemStyle.Bordered, target: viewController, action: NSSelectorFromString(rBFunc))
-        
-        navItem.rightBarButtonItem = rButton
         navItem.leftBarButtonItem = lButton
+
+
+        if rBTitle != nil && rBFunc != nil {
+            var rButton = UIBarButtonItem(title: rBTitle!, style: UIBarButtonItemStyle.Bordered, target: viewController, action: NSSelectorFromString(rBFunc!))
+            navItem.rightBarButtonItem = rButton
+        }
+        
         navItem.title = title
         
     }
@@ -42,5 +46,15 @@ public extension UIView {
             subView.removeFromSuperview()
         }
     }
+    
+    func iUITextFieldWithNumber(number: Int) -> UIView? {
+        for subView in self.subviews {
+            if let textField = subView as? iUITextField {
+                if textField.number == number {
+                    return textField
+                }
+            }
+        }
+        return nil
+    }
 }
-

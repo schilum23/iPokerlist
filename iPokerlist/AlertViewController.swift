@@ -21,6 +21,7 @@ class AlertViewController: UIViewController {
     var textView:UITextView!
     var textField1:UITextField!
     var textField2:UITextField!
+    var errorLabel:UILabel!
     
     var rootViewController:UIViewController!
     var iconImage:UIImage!
@@ -189,12 +190,15 @@ class AlertViewController: UIViewController {
         }
         
         // Text fields
-        yPos += self.padding
-        
         if self.textField1 != nil {
+            yPos += self.padding
             self.textField1.frame = CGRect(x: self.padding, y: yPos, width: self.alertWidth - (self.padding*2), height: 30)
             self.textField1.layer.cornerRadius = 0
-            yPos += ceil(self.textField1.frame.height) + padding/2
+            yPos += 30
+            
+            
+            self.errorLabel.frame = CGRect(x: self.padding, y: yPos, width: self.alertWidth - (self.padding*2), height: 20)
+            yPos += ceil(self.errorLabel.frame.height)
         }
         
         // position the buttons
@@ -207,13 +211,21 @@ class AlertViewController: UIViewController {
             if self.buttonLabel != nil {
                 self.buttonLabel.frame = CGRect(x: self.padding, y: (self.buttonHeight/2) - 15, width: buttonWidth - (self.padding*2), height: 30)
             }
+            
+            var buttonX = buttonWidth == self.alertWidth ? 0 : buttonWidth
+            self.cancelButton.frame = CGRect(x: buttonX, y: yPos, width: buttonWidth, height: self.buttonHeight)
+            if self.cancelButtonLabel != nil {
+                self.cancelButtonLabel.frame = CGRect(x: self.padding, y: (self.buttonHeight/2) - 15, width: buttonWidth - (self.padding*2), height: 30)
+            }
+        } else {
+            var buttonX = buttonWidth == self.alertWidth ? 0 : buttonWidth
+            self.dismissButton.frame = CGRect(x: buttonX, y: yPos, width: buttonWidth, height: self.buttonHeight)
+            if self.buttonLabel != nil {
+                self.buttonLabel.frame = CGRect(x: self.padding, y: (self.buttonHeight/2) - 15, width: buttonWidth - (self.padding*2), height: 30)
+            }
         }
         
-        var buttonX = buttonWidth == self.alertWidth ? 0 : buttonWidth
-        self.cancelButton.frame = CGRect(x: buttonX, y: yPos, width: buttonWidth, height: self.buttonHeight)
-        if self.cancelButtonLabel != nil {
-            self.cancelButtonLabel.frame = CGRect(x: self.padding, y: (self.buttonHeight/2) - 15, width: buttonWidth - (self.padding*2), height: 30)
-        }
+       
         
         // set button fonts
         if self.buttonLabel != nil {
@@ -229,7 +241,7 @@ class AlertViewController: UIViewController {
         self.alertBackgroundView.frame = CGRect(x: 0, y: 0, width: self.alertWidth, height: yPos)
         
         // size the container that holds everything together
-        var yPosMinus: CGFloat = (textView != nil) ? 100 : 0
+        var yPosMinus: CGFloat = (textField1 != nil) ? 100 : 0
         self.containerView.frame = CGRect(x: (self.viewWidth!-self.alertWidth)/2, y: (self.viewHeight! - yPos)/2 - yPosMinus, width: self.alertWidth, height: yPos)
     }
     
@@ -327,6 +339,16 @@ class AlertViewController: UIViewController {
             textField1.placeholder = placeholder
             self.containerView.addSubview(textField1)
             textField1.becomeFirstResponder()
+
+            
+            
+            self.errorLabel = UILabel()
+            errorLabel.textColor = UIColor.redColor()
+            errorLabel.numberOfLines = 0
+            errorLabel.textAlignment = .Left
+            errorLabel.font = UIFont(name: self.titleFont, size: 14)
+            errorLabel.text = ""
+            self.containerView.addSubview(errorLabel)
         }
         
         // Button
@@ -393,8 +415,11 @@ class AlertViewController: UIViewController {
     }
     
     func buttonTap() {
-        self.closeAction()
-        //  closeView(true, removeView: false);
+        if let action = self.closeAction? {
+            action()
+        } else {
+            closeView(true)
+        }
     }
     
     func cancelButtonTap() {
@@ -425,7 +450,7 @@ class AlertViewController: UIViewController {
         isAlertOpen = false
         self.view.removeFromSuperview()
     }
-    
+
 }
 
 

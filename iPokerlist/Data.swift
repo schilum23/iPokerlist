@@ -22,6 +22,7 @@ class Data: NSObject {
     var arrayGroupedScores = [ScoreGroups]()
     var changed = false
     var PKL_ID = 1//NSUserDefaults.standardUserDefaults().integerForKey("PKL_ID")
+    var me_PER_ID: Int = NSUserDefaults.standardUserDefaults().integerForKey("PER_ID")
     
     
     var lists = [[String:NSObject]]()
@@ -64,6 +65,14 @@ class Data: NSObject {
         self.arrayPersons.sort( {$0.name.lowercaseString < $1.name.lowercaseString})
     }
     
+    func setAllPersonsToNotMe() {
+        for oPER in self.arrayPersons {
+            oPER.me = false
+        }
+        NSUserDefaults.standardUserDefaults().setInteger(0, forKey: "PER_ID")
+    }
+
+    
     func sortArrayResults() {
         self.arrayResults.sort( { $0.date == $1.date ? $0.name < $1.name : $0.date.timeIntervalSinceNow > $1.date.timeIntervalSinceNow })
     }
@@ -76,13 +85,18 @@ class Data: NSObject {
             
             var oSCO: Scores? = self.arrayScores.filter( { $0.PER_ID == oRES.PER_ID} ).first?
             if oSCO == nil {
-                oSCO = Scores(PER_ID: oRES.PER_ID, name: oRES.name, chipsIn: oRES.chipsIn, chipsOut: oRES.chipsOut, position: 1)
+                oSCO = Scores(PER_ID: oRES.PER_ID, name: oRES.name, chipsIn: oRES.chipsIn, chipsOut: oRES.chipsOut, moneyIn: oRES.moneyIn, moneyOut: oRES.moneyOut, position: 1)
                 self.arrayScores.append(oSCO!)
             } else {
                 oSCO!.games += 1
                 oSCO!.chipsOut += oRES.chipsOut
                 oSCO!.chipsIn += oRES.chipsIn
-
+                oSCO!.moneyIn += oRES.moneyIn
+                oSCO!.moneyOut += oRES.moneyOut
+                oSCO!.maxWin = (oSCO!.maxWin < (oRES.moneyOut - oRES.moneyIn)) ? (oRES.moneyOut - oRES.moneyIn) : oSCO!.maxWin
+                let ratio = oRES.chipsOut / vDouble((oRES.chipsIn != 0 ? oRES.chipsIn : 1)) * 100.00
+                oSCO!.ratioMax = (oSCO!.ratioMax < ratio) ? ratio : oSCO!.ratioMax
+   
             }
         }
         
@@ -129,7 +143,7 @@ class Data: NSObject {
                 var oSCO: Scores? = oGSCO?.arrayScores.filter( { $0.PER_ID == oRES.PER_ID} ).first?
 
                 if oSCO == nil {
-                    oSCO = Scores(PER_ID: oRES.PER_ID, name: oRES.name, chipsIn: oRES.chipsIn, chipsOut: oRES.chipsOut, position: 1)
+                    oSCO = Scores(PER_ID: oRES.PER_ID, name: oRES.name, chipsIn: oRES.chipsIn, chipsOut: oRES.chipsOut, moneyIn: oRES.moneyIn, moneyOut: oRES.moneyOut, position: 1)
                     oGSCO?.arrayScores.append(oSCO!)
                 } else {
                     oSCO!.games += 1

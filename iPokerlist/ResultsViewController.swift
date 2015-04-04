@@ -10,7 +10,7 @@ import UIKit
 
 class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePickerDelegate {
     
-    var textBoxTag = 0
+    var textFieldTag = 0
     var data: Data!
     var scrollView = UIScrollView()
     var bottomView = UIView()
@@ -26,6 +26,14 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         return false
     }
 
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if data.changed {
+            setupViews()
+        }
+    }
+    
     
     // MARK: - Help Functions
     // Views aufbauen
@@ -60,35 +68,39 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         for oPER in data.arrayPersons {
             
             let sizeLabel = CGRectMake(10, lastY, scrollView.frame.width - 40 - 164, 30)
-            let sizeTextBoxIn = CGRectMake(CGRectGetMaxX(sizeLabel) + 10, lastY, 82, 30)
-            let sizeTextBoxOut = CGRectMake(CGRectGetMaxX(sizeTextBoxIn) + 10, lastY, 82, 30)
+            let sizetextFieldIn = CGRectMake(CGRectGetMaxX(sizeLabel) + 10, lastY, 82, 30)
+            let sizetextFieldOut = CGRectMake(CGRectGetMaxX(sizetextFieldIn) + 10, lastY, 82, 30)
             
             let label = UILabel(frame: sizeLabel)
-            let textBoxIn = UITextField(frame: sizeTextBoxIn)
-            let textBoxOut = UITextField(frame: sizeTextBoxOut)
+            let textFieldIn = iUITextField(frame: sizetextFieldIn)
+            let textFieldOut = iUITextField(frame: sizetextFieldOut)
             
             label.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100)
-            textBoxIn.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 1
-            textBoxOut.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 2
+            textFieldIn.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 1
+            textFieldOut.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 2
             
 
-            textBoxIn.delegate = self
-            textBoxOut.delegate = self
+            textFieldIn.delegate = self
+            textFieldOut.delegate = self
 
-            textBoxIn.borderStyle = UITextBorderStyle.Line
-            textBoxOut.borderStyle = UITextBorderStyle.Line
+            textFieldIn.borderStyle = UITextBorderStyle.Line
+            textFieldOut.borderStyle = UITextBorderStyle.Line
             
-            textBoxIn.keyboardType = UIKeyboardType.DecimalPad
-            textBoxOut.keyboardType = UIKeyboardType.DecimalPad
+            textFieldIn.keyboardType = UIKeyboardType.DecimalPad
+            textFieldOut.keyboardType = UIKeyboardType.DecimalPad
             
-            textBoxIn.inputAccessoryView = keyboardToolbar
-            textBoxOut.inputAccessoryView = keyboardToolbar
+            textFieldIn.inputAccessoryView = keyboardToolbar
+            textFieldOut.inputAccessoryView = keyboardToolbar
             
+            textFieldIn.number = tagCounter
+            textFieldOut.number = tagCounter + 1
+            
+            label.font = oPER.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
             label.text = oPER.name
             
             scrollView.addSubview(label)
-            scrollView.addSubview(textBoxIn)
-            scrollView.addSubview(textBoxOut)
+            scrollView.addSubview(textFieldIn)
+            scrollView.addSubview(textFieldOut)
 
             tagCounter += 2
             lastY = 10.00 + CGRectGetMaxY(sizeLabel)
@@ -139,25 +151,25 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
                 
                 let tag = vInt((vString(view.tag) as NSString).substringWithRange(NSRange(location: countElements(vString(data.PKL_ID)), length: countElements(vString(view.tag)) - countElements(vString(data.PKL_ID)))))
                 let PER_ID = tag / 100
-                let textBoxIn = scrollView.viewWithTag(view.tag + 1) as UITextField
-                let textBoxOut = scrollView.viewWithTag(view.tag + 2) as UITextField
+                let textFieldIn = scrollView.viewWithTag(view.tag + 1) as UITextField
+                let textFieldOut = scrollView.viewWithTag(view.tag + 2) as UITextField
                 
-                if succesfullValidated && textBoxIn.text != "" || textBoxOut.text != "" {
+                if succesfullValidated && textFieldIn.text != "" || textFieldOut.text != "" {
                     zeroEntries = false
                 }
                 
-                if !succesfullValidated && ((textBoxIn.text == "" && textBoxOut.text != "") || (textBoxIn.text != "" && textBoxOut.text == "")) {
-                    textBoxIn.backgroundColor = textBoxIn.text == "" ? UIColor.redColor() : UIColor.whiteColor()
-                    textBoxOut.backgroundColor = textBoxOut.text == "" ? UIColor.redColor() : UIColor.whiteColor()
+                if !succesfullValidated && ((textFieldIn.text == "" && textFieldOut.text != "") || (textFieldIn.text != "" && textFieldOut.text == "")) {
+                    textFieldIn.backgroundColor = textFieldIn.text == "" ? UIColor.redColor() : UIColor.whiteColor()
+                    textFieldOut.backgroundColor = textFieldOut.text == "" ? UIColor.redColor() : UIColor.whiteColor()
                     noErrors = false
-                } else if succesfullValidated && textBoxIn.text != "" && textBoxOut.text != ""  {
+                } else if succesfullValidated && textFieldIn.text != "" && textFieldOut.text != ""  {
                     
                     let oRES = Results(date: iDatePicker.date)
                     oRES.PKL_ID = data.PKL_ID
                     oRES.PER_ID = PER_ID
                     oRES.name = (view as UILabel).text!
-                    oRES.chipsIn = vDouble(textBoxIn.text)
-                    oRES.chipsOut = vDouble(textBoxOut.text)
+                    oRES.chipsIn = vDouble(textFieldIn.text)
+                    oRES.chipsOut = vDouble(textFieldOut.text)
                     oRES.addResultWS()
                     
                     data.arrayResults.append(oRES)
@@ -177,6 +189,20 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
             data.changed = true
         }
         
+        if !noErrors {
+
+            var customIcon = UIImage(named: "lightbulb")
+            var alertview = AlertViewController().show(self, title: "Speichern nicht möglich! ", text: "Es wurde nicht nicht für alle Spieler die korrekten Ein- und Auszahlungen angegeben.", buttonText: "OK", color: UIColorFromHex(0x9b59b6, alpha: 1), iconImage: customIcon)
+            alertview.setTextTheme(.Light)
+        }
+        
+        if zeroEntries && noErrors {
+            var customIcon = UIImage(named: "lightbulb")
+            var alertview = AlertViewController().show(self, title: "Speichern nicht möglich! ", text: "Keine Daten angegeben.", buttonText: "OK", color: UIColorFromHex(0x9b59b6, alpha: 1), iconImage: customIcon)
+            alertview.setTextTheme(.Light)
+
+        }
+        
         return noErrors && !zeroEntries
 
     }
@@ -188,9 +214,23 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     }
     
     // Textfield ist aktiv
-    func textFieldDidBeginEditing(textField: UITextField) {
+    func textFieldDidBeginEditing(textField: iUITextField) {
         textField.backgroundColor = UIColor.whiteColor()
-        textBoxTag = textField.tag
+        
+        if textField.number % 2 == 0 {
+           if let textFieldSecond = scrollView.iUITextFieldWithNumber(textField.number - 1) as? iUITextField {
+            textFieldSecond.backgroundColor = UIColor.whiteColor()
+            }
+        } else {
+            if let textFieldSecond = scrollView.iUITextFieldWithNumber(textField.number + 1) as? iUITextField {
+                textFieldSecond.backgroundColor = UIColor.whiteColor()
+            }
+        }
+        
+        textFieldTag = textField.number
+
+        scrollView.setContentOffset(CGPointMake(0, textField.frame.origin.y - 10), animated: true)
+        
     }
     
     
@@ -204,11 +244,8 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     // Nächstes/Vorheriges TextField
     func goToTextField(button: UIButton) {
         
-        for view in scrollView.subviews {
-        }
-       
-        var actResponder: UIResponder? = scrollView.viewWithTag(textBoxTag)
-        var nextResponder: UIResponder? = scrollView.viewWithTag(textBoxTag + 1)
+        var actResponder: UIResponder? = scrollView.iUITextFieldWithNumber(textFieldTag)
+        var nextResponder: UIResponder? = scrollView.iUITextFieldWithNumber(textFieldTag + (1 * button.tag))
         
         if (nextResponder != nil) {
             nextResponder!.becomeFirstResponder()
@@ -222,6 +259,11 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     // Tastatur ausblenden
     func doneClicked(button: UIButton) {
         self.view.endEditing(true)
+        
+        if scrollView.contentSize.height < (scrollView.contentOffset.y + scrollView.frame.size.height) {
+            scrollView.setContentOffset(CGPointMake(0, scrollView.contentSize.height - scrollView.frame.size.height), animated: true)
+        }
+
     }
     
     // MARK: - BarButton Events
