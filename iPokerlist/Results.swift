@@ -11,6 +11,7 @@ import UIKit
 
 class Results: NSObject {
     
+    // MARK: - Variablen
     var id: Int = 0
     var created: NSDate = NSDate()
     var changed: NSDate = NSDate()
@@ -18,7 +19,6 @@ class Results: NSObject {
     var PKL_ID: Int = 1
     var PER_ID: Int = 1
     var state: Int = 1
-    var name: String = ""
     var date: NSDate!
     var year: String = ""
     var dateString: String = ""
@@ -31,8 +31,8 @@ class Results: NSObject {
     var moneyWin: Double = 0
     var ratio: Double = 0
     var error: NSError?
-    var oPER: Persons = Persons()
     
+    // MARK: - Init / Coder
     override init() {
         super.init()
     }
@@ -40,7 +40,7 @@ class Results: NSObject {
     init(date: NSDate) {
         super.init()
         
-        let flags: NSCalendarUnit = .DayCalendarUnit | .MonthCalendarUnit | .YearCalendarUnit
+        let flags: NSCalendarUnit = .CalendarUnitDay | .CalendarUnitMonth | .CalendarUnitYear
         let components = NSCalendar.currentCalendar().components(flags, fromDate: vDate(date))
         
         self.dateString = vString(date)
@@ -51,7 +51,7 @@ class Results: NSObject {
     init(wsData: [String:NSObject]) {
         super.init()
         
-        let flags: NSCalendarUnit = .DayCalendarUnit | .MonthCalendarUnit | .YearCalendarUnit
+        let flags: NSCalendarUnit = .CalendarUnitDay | .CalendarUnitMonth | .CalendarUnitYear
         let components = NSCalendar.currentCalendar().components(flags, fromDate: vDate(wsData["date"]))
         
         self.id = vInt(wsData["id"])
@@ -60,7 +60,6 @@ class Results: NSObject {
         self.deleted = vDate(wsData["Deleted"])
         self.PKL_ID = vInt(wsData["RES_PKL"])
         self.PER_ID = vInt(wsData["PER_ID"])
-        self.name = vString(wsData["name"])
         self.dateString = vString(wsData["date"])
         self.date = vDate(wsData["date"])
         self.year = vString(components.year)
@@ -79,6 +78,55 @@ class Results: NSObject {
         
         self.ratio = (self.chipsIn > 0) ? (self.chipsOut / self.chipsIn) * 100 : 0
     }
+
+    
+    init(coder aDecoder: NSCoder!) {
+        self.id = aDecoder.decodeObjectForKey("id") as! Int
+        self.created = aDecoder.decodeObjectForKey("created") as! NSDate
+        self.changed = aDecoder.decodeObjectForKey("changed") as! NSDate
+        self.deleted = aDecoder.decodeObjectForKey("deleted") as? NSDate
+        self.PKL_ID = aDecoder.decodeObjectForKey("PKL_ID") as! Int
+        self.PER_ID = aDecoder.decodeObjectForKey("PER_ID") as! Int
+        self.state = aDecoder.decodeObjectForKey("state") as! Int
+        self.date = aDecoder.decodeObjectForKey("date") as! NSDate
+        self.year = aDecoder.decodeObjectForKey("year") as! String
+        self.dateString = aDecoder.decodeObjectForKey("dateString") as! String
+        self.chipsIn = aDecoder.decodeObjectForKey("chipsIn") as! Double
+        self.chipsOut = aDecoder.decodeObjectForKey("chipsOut") as! Double
+        self.chipsWin = aDecoder.decodeObjectForKey("chipsWin") as! Double
+        self.factor = aDecoder.decodeObjectForKey("factor") as! Double
+        self.moneyIn = aDecoder.decodeObjectForKey("moneyIn") as! Double
+        self.moneyOut = aDecoder.decodeObjectForKey("moneyOut") as! Double
+        self.moneyWin = aDecoder.decodeObjectForKey("moneyWin") as! Double
+        self.ratio = aDecoder.decodeObjectForKey("ratio") as! Double
+        self.error = aDecoder.decodeObjectForKey("error") as? NSError
+    }
+    
+    func encodeWithCoder(aCoder: NSCoder!) {
+        aCoder.encodeObject(id, forKey: "id")
+        aCoder.encodeObject(created, forKey: "created")
+        aCoder.encodeObject(changed, forKey: "changed")
+        aCoder.encodeObject(deleted, forKey: "deleted")
+        aCoder.encodeObject(PKL_ID, forKey: "PKL_ID")
+        aCoder.encodeObject(PER_ID, forKey: "PER_ID")
+        aCoder.encodeObject(state, forKey: "state")
+        aCoder.encodeObject(date, forKey: "date")
+        aCoder.encodeObject(year, forKey: "year")
+        aCoder.encodeObject(dateString, forKey: "dateString")
+        aCoder.encodeObject(chipsIn, forKey: "chipsIn")
+        aCoder.encodeObject(chipsOut, forKey: "chipsOut")
+        aCoder.encodeObject(chipsWin, forKey: "chipsWin")
+        aCoder.encodeObject(factor, forKey: "factor")
+        aCoder.encodeObject(moneyIn, forKey: "moneyIn")
+        aCoder.encodeObject(moneyOut, forKey: "moneyOut")
+        aCoder.encodeObject(moneyWin, forKey: "moneyWin")
+        aCoder.encodeObject(ratio, forKey: "ratio")
+        aCoder.encodeObject(error, forKey: "error")
+    }
+    
+    func linkedPerson(arrayPersons: [Persons]) -> Persons? {
+        return arrayPersons.filter( { $0.id == self.PER_ID } ).first
+    }
     
     func addResultWS() {
         
@@ -89,7 +137,7 @@ class Results: NSObject {
         "\(self.PER_ID)&RES_PKL=\(self.PKL_ID)&RES_Date=\(vString(self.date, dateFormat: dateFormat))&RES_In=\(self.chipsIn)&RES_Out=\(self.chipsOut)&RES_Created=\(vString(self.created, dateFormat: dateFormatCreated))"
 
         if let json = getJSONData(link) {
-            var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as [[String:NSObject]]
+            var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
         } else {
             println("ERROR: Keine Daten")
         }

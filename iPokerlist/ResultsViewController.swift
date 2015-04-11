@@ -147,12 +147,12 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         var noErrors = true
         var zeroEntries = true
         for view in scrollView.subviews {
-            if _stdlib_getTypeName(view) == "UILabel" {
+            if _stdlib_getDemangledTypeName(view) == "UILabel" {
                 
-                let tag = vInt((vString(view.tag) as NSString).substringWithRange(NSRange(location: countElements(vString(data.PKL_ID)), length: countElements(vString(view.tag)) - countElements(vString(data.PKL_ID)))))
+                let tag = vInt((vString(view.tag) as NSString).substringWithRange(NSRange(location: count(vString(data.PKL_ID)), length: count(vString(view.tag)) - count(vString(data.PKL_ID)))))
                 let PER_ID = tag / 100
-                let textFieldIn = scrollView.viewWithTag(view.tag + 1) as UITextField
-                let textFieldOut = scrollView.viewWithTag(view.tag + 2) as UITextField
+                let textFieldIn = scrollView.viewWithTag(view.tag + 1) as! UITextField
+                let textFieldOut = scrollView.viewWithTag(view.tag + 2) as! UITextField
                 
                 if succesfullValidated && textFieldIn.text != "" || textFieldOut.text != "" {
                     zeroEntries = false
@@ -167,7 +167,6 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
                     let oRES = Results(date: iDatePicker.date)
                     oRES.PKL_ID = data.PKL_ID
                     oRES.PER_ID = PER_ID
-                    oRES.name = (view as UILabel).text!
                     oRES.chipsIn = vDouble(textFieldIn.text)
                     oRES.chipsOut = vDouble(textFieldOut.text)
                     oRES.addResultWS()
@@ -214,25 +213,28 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     }
     
     // Textfield ist aktiv
-    func textFieldDidBeginEditing(textField: iUITextField) {
+    func textFieldDidBeginEditing(textField: UITextField) {
+        
+        let textiField = textField as! iUITextField
+        
         textField.backgroundColor = UIColor.whiteColor()
         
-        if textField.number % 2 == 0 {
-           if let textFieldSecond = scrollView.iUITextFieldWithNumber(textField.number - 1) as? iUITextField {
-            textFieldSecond.backgroundColor = UIColor.whiteColor()
+        if textiField.number % 2 == 0 {
+            if let textFieldSecond = scrollView.iUITextFieldWithNumber(textiField.number - 1) as? iUITextField {
+                textFieldSecond.backgroundColor = UIColor.whiteColor()
             }
         } else {
-            if let textFieldSecond = scrollView.iUITextFieldWithNumber(textField.number + 1) as? iUITextField {
+            if let textFieldSecond = scrollView.iUITextFieldWithNumber(textiField.number + 1) as? iUITextField {
                 textFieldSecond.backgroundColor = UIColor.whiteColor()
             }
         }
         
-        textFieldTag = textField.number
-
+        textFieldTag = textiField.number
+        
         scrollView.setContentOffset(CGPointMake(0, textField.frame.origin.y - 10), animated: true)
         
+
     }
-    
     
     // Speichern / Validieren
     func saveButtonAction(button: UIButton) {

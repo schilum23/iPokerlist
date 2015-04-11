@@ -119,6 +119,8 @@ func getJSONData(link: String) -> NSData? {
         }
     }
     
+    println("ERROR: JSON String \(link) liefert keine Daten.")
+    
     return nil
     
 }

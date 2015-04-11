@@ -15,7 +15,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     var selectionBar: UIView!
     var toolBar: UIToolbar!
     var lastY:CGFloat = 0
-    var data: Data?
+    var data: Data = Data()
     var arrayScoresYear: [Scores]?
     var openSection = -1
     var tableViewResults = UITableView()
@@ -26,23 +26,29 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     
     
     override func viewDidLoad() {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "rotated", name: UIDeviceOrientationDidChangeNotification, object: nil)
         super.viewDidLoad()
-        self.data = Data()
-        arrayScoresYear = data!.arrayGroupedScores.first?.arrayScores
-        year = vInt(data!.arrayGroupedScores.first?.groupName)
+        self.data = self.data.dataTemp!
+        arrayScoresYear = data.arrayGroupedScores.first?.arrayScores
+        year = vInt(data.arrayGroupedScores.first?.groupName)
         setupViews()
         
     }
     
+   
+
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
-        if data!.changed {
+        if data.changed {
             
             setupViews()
-            data!.changed = false
+            data.changed = false
         }
     }
+    
+    
+
     
     override func shouldAutorotate() -> Bool {
         return false
@@ -122,7 +128,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         /// View for Stats
         let viewStats = UIView(frame: CGRect(x: 0.0, y: 0.0, width: scrollView.frame.width, height: scrollView.frame.height))
         viewStats.frame.origin.x += CGFloat(3) * self.view.frame.width
-        viewStats.backgroundColor = UIColor.greenColor()
+        viewStats.backgroundColor = UIColor.whiteColor()
         scrollView.addSubview(viewStats)
         
         self.view.addSubview(scrollView)
@@ -132,6 +138,26 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         scrollView.scrollRectToVisible(scrollToFrame, animated: true)
     }
     
+    func rotated()
+    {
+        if(UIDeviceOrientationIsLandscape(UIDevice.currentDevice().orientation))
+        {
+            let tableScoresView = TableScoresViewController()
+            switch currentPageIndex {
+            case 0:
+                tableScoresView.arrayScores = data.arrayScores
+            case 1:
+                 tableScoresView.arrayScores = arrayScoresYear
+            default:
+                return
+            }
+            
+            tableScoresView.data = data
+            self.presentViewController(tableScoresView, animated: true, completion: nil)
+        }
+    }
+    
+    // Switch Button
     func setupButtons() {
         
         var buttonText = ["Gesamt", "Alle", "Ergebnisse", "Statistik"]
@@ -151,6 +177,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         self.setupSelector()
     }
     
+    // Switch Button Action
     func tapSegmentButtonAction(button:UIButton) {
         
         var tempIndex = currentPageIndex
@@ -166,6 +193,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         }
     }
     
+    // Einstellungen
     func settingsButtonAction(button: UIButton) {
         
         let settingsView = SettingsViewController()
@@ -174,14 +202,14 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
 
     }
     
-    // Neues Ergbnis
+    // Neues Ergebnis
     func addButtonAction(button: UIButton) {
         let resultsView = ResultsViewController()
         resultsView.data = data
         self.presentViewController(resultsView, animated: true, completion: nil)
     }
     
-    
+    // Switch Selector
     func setupSelector() {
         selectionBar = UIView(frame: CGRectMake(0, 40, (toolBar.frame.width / CGFloat(4)), 4))
         selectionBar.backgroundColor = UIColor.greenColor()
@@ -201,7 +229,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         case 1:
             numberOfSectionsInTableView = 1
         case 2:
-            numberOfSectionsInTableView = data!.arrayGroupedResults.count
+            numberOfSectionsInTableView = data.arrayGroupedResults.count
         default:
             numberOfSectionsInTableView = 1
         }
@@ -215,9 +243,9 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         
         switch tableView.tag {
         case 0:
-            height = 0
+            height = 44
         case 1:
-            height = 0
+            height = 44
         case 2:
             height = 44
         default:
@@ -228,19 +256,57 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     }
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        var btnHeader = UIButton(frame: CGRectMake(0, 0, tableView.frame.width, 44))
-        var oRES = data!.arrayGroupedResults[section].first!
         
-        btnHeader.tag = section
-        tableViewResults = tableView
-        btnHeader.addTarget(self, action: "tapSectionButtonAction:", forControlEvents: UIControlEvents.TouchUpInside)
-        btnHeader.setTitleColor(UIColor.blackColor(), forState: .Normal)
-        btnHeader.setTitle(oRES.dateString, forState:UIControlState.Normal)
-        btnHeader.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
-        btnHeader.contentEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 0);
-        btnHeader.backgroundColor = UIColor.lightGrayColor()
+        switch tableView.tag {
+        case 0, 1:
+            
+            let view = UIView(frame: CGRectMake(0, 0, tableView.frame.width, 44))
+            view.backgroundColor = UIColor.whiteColor()
+            let viewBorder = UIView(frame: CGRectMake(0, 42, tableView.frame.width, 2))
+            viewBorder.backgroundColor = UIColor.blackColor()
+            view.addSubview(viewBorder)
+            
+            let sizeLabelName: CGFloat = self.view.frame.width - (4 * 10) - 40 - 100 - 20
+            
+            let labelPos = UILabel(frame: CGRectMake(10, 0, 40, view.frame.height))
+            labelPos.textAlignment = NSTextAlignment.Center
+            labelPos.font = .boldSystemFontOfSize(16.0)
+            labelPos.text = "Pos."
+            
+            let labelName = UILabel(frame: CGRectMake(CGRectGetMaxX(labelPos.frame) + 10, 0, sizeLabelName, view.frame.height))
+            labelName.font = .boldSystemFontOfSize(16.0)
+            labelName.text = "Name"
+            
+            let labelRatio = UILabel(frame: CGRectMake(CGRectGetMaxX(labelName.frame) + 10, 0, 100, view.frame.height))
+            labelRatio.textAlignment = .Right
+            labelRatio.font = .boldSystemFontOfSize(16.0)
+            labelRatio.text = "Verhältnis"
+            
+            view.addSubview(labelPos)
+            view.addSubview(labelName)
+            view.addSubview(labelRatio)
+            
+            return view
+            
+        case 2:
+            let btnHeader = UIButton(frame: CGRectMake(0, 0, tableView.frame.width, 44))
+            let oRES = data.arrayGroupedResults[section].first!
+            
+            btnHeader.tag = section
+            tableViewResults = tableView
+            btnHeader.addTarget(self, action: "tapSectionButtonAction:", forControlEvents: UIControlEvents.TouchUpInside)
+            btnHeader.setTitleColor(UIColor.blackColor(), forState: .Normal)
+            btnHeader.setTitle(oRES.dateString, forState:UIControlState.Normal)
+            btnHeader.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
+            btnHeader.contentEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 0);
+            btnHeader.backgroundColor = UIColor.lightGrayColor()
+            return btnHeader
+
+        default:
+            return nil
+        }
+
         
-        return btnHeader
     }
     
     func tapSectionButtonAction(button: UIButton) {
@@ -254,22 +320,23 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         for view in self.scrollView.subviews {
             if view.tag == 2 {
                 
-                UIView.transitionWithView(view as UIView, duration: 0.4, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
+                UIView.transitionWithView(view as! UIView, duration: 0.2, options: UIViewAnimationOptions.TransitionCrossDissolve, animations: {
                     
+                    view.setContentOffset(CGPointMake(0, CGFloat(button.tag)*44.00), animated: true)
                     view.reloadData()
-                    
+
                     }, completion: { (fininshed: Bool) -> () in
                         
                 })
             }
         }
         
-        
     }
+
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
-        var oRES = data!.arrayGroupedResults[section].first!
+        var oRES = data.arrayGroupedResults[section].first!
         var header = ""
         
         switch tableView.tag {
@@ -293,11 +360,11 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         
         switch tableView.tag {
         case 0:
-            numberOfRows = data!.arrayScores.count
+            numberOfRows = data.arrayScores.count
         case 1:
             numberOfRows = vInt(arrayScoresYear?.count)
         case 2:
-            numberOfRows = (section == openSection) ? data!.arrayGroupedResults[section].count : 0
+            numberOfRows = (section == openSection) ? data.arrayGroupedResults[section].count : 0
         default:
             numberOfRows = 0
         }
@@ -317,13 +384,14 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         if cell == nil {
             cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
             //cell?.selectionStyle = UITableViewCellSelectionStyle.None
+            cell?.selectedBackgroundView.backgroundColor = UIColor.whiteColor()
             
             switch tableView.tag {
             case 0, 1:
                 
-                let sizeLabelName: CGFloat = self.view.frame.width - (4 * 10) - 30 - 100 - 20
+                let sizeLabelName: CGFloat = self.view.frame.width - (4 * 10) - 40 - 100 - 20
                 
-                let labelPos = UILabel(frame: CGRectMake(10, 0, 30, cell!.frame.height))
+                let labelPos = UILabel(frame: CGRectMake(10, 0, 40, cell!.frame.height))
                 labelPos.tag = 1
                 labelPos.textAlignment = .Right
                 
@@ -352,38 +420,37 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         switch tableView.tag {
         case 0:
             
-            let oSCO = data!.arrayScores[indexPath.row]
+            let oSCO = data.arrayScores[indexPath.row]
      
-            (cell!.viewWithTag(1) as UILabel).text = vString(indexPath.row + 1)
-            (cell!.viewWithTag(2) as UILabel).text = oSCO.name
-            (cell!.viewWithTag(3) as UILabel).text = String(format: "%.2f", vDouble(oSCO.ratio))
+            (cell!.viewWithTag(1) as! UILabel).text = vString(indexPath.row + 1)
+            (cell!.viewWithTag(2) as! UILabel).text = oSCO.linkedPerson(self.data.arrayPersons)?.name
+            (cell!.viewWithTag(3) as! UILabel).text = String(format: "%.2f", vDouble(oSCO.ratio))
 
-            
-            (cell!.viewWithTag(1) as UILabel).font = oSCO.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
-            (cell!.viewWithTag(2) as UILabel).font = oSCO.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
-            (cell!.viewWithTag(3) as UILabel).font = oSCO.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            for i in 1...3 {
+                (cell!.viewWithTag(i) as! UILabel).font = oSCO.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            }
 
         case 1:
             
             let oSCO = arrayScoresYear?[indexPath.row]
             
-            (cell!.viewWithTag(1) as UILabel).text = vString(indexPath.row + 1)
-            (cell!.viewWithTag(2) as UILabel).text = oSCO?.name
-            (cell!.viewWithTag(3) as UILabel).text = String(format: "%.2f", vDouble(oSCO?.ratio))
+            (cell!.viewWithTag(1) as! UILabel).text = vString(indexPath.row + 1)
+            (cell!.viewWithTag(2) as! UILabel).text = oSCO!.linkedPerson(self.data.arrayPersons)?.name
+            (cell!.viewWithTag(3) as! UILabel).text = String(format: "%.2f", vDouble(oSCO?.ratio))
             
+            for i in 1...3 {
+                (cell!.viewWithTag(i) as! UILabel).font = oSCO!.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            }
             
-            (cell!.viewWithTag(1) as UILabel).font = oSCO?.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
-            (cell!.viewWithTag(2) as UILabel).font = oSCO?.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
-            (cell!.viewWithTag(3) as UILabel).font = oSCO?.PER_ID == data!.me_PER_ID ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
-
-
-
         case 2:
             
-            let oRES = data!.arrayGroupedResults[indexPath.section][indexPath.row]
+            let oRES = data.arrayGroupedResults[indexPath.section][indexPath.row]
             
-            cell?.textLabel?.text = oRES.name
-            cell?.detailTextLabel?.text = "In: \(oRES.chipsIn) Out: \(oRES.chipsOut) MoneyIn: \(oRES.moneyIn) Verhätnis: \(oRES.ratio)"
+            let ratio = String(format: "%.2f", vDouble(oRES.ratio))
+            let valueIn = String(format: "%.2f", vDouble(oRES.moneyIn))
+            let valueOut = String(format: "%.2f", vDouble(oRES.moneyOut))
+            cell?.textLabel?.text = "\(oRES.linkedPerson(self.data.arrayPersons)!.name) - \(ratio)%"
+            cell?.detailTextLabel?.text = "In: \(valueIn) Out: \(valueOut)"
             
         default:
             println("TableView ohne Tag")
@@ -399,7 +466,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         var oSCO: Scores?
         switch tableView.tag {
         case 0:
-            oSCO = data!.arrayScores[indexPath.row]
+            oSCO = data.arrayScores[indexPath.row]
         case 1:
             oSCO = arrayScoresYear?[indexPath.row]
         default:
@@ -423,17 +490,17 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     }
     
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String! {
-        return data!.arrayGroupedScores[row].groupName
+        return data.arrayGroupedScores[row].groupName
     }
     
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return data!.arrayGroupedScores.count
+        return data.arrayGroupedScores.count
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         
-        arrayScoresYear = data!.arrayGroupedScores[row].arrayScores
-        year = vInt(data!.arrayGroupedScores[row].groupName)
+        arrayScoresYear = data.arrayGroupedScores[row].arrayScores
+        year = vInt(data.arrayGroupedScores[row].groupName)
         tableViewScoresByYear.reloadData()
     }
     

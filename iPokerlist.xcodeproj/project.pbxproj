@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C11512A1AD57A9E004DB4C7 /* CDData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1151291AD57A9E004DB4C7 /* CDData.swift */; };
 		2C1E4A141AC34A7900119261 /* BackUpCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1E4A131AC34A7900119261 /* BackUpCode.swift */; };
 		2C1E4A161AC34FAE00119261 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1E4A151AC34FAE00119261 /* SettingsViewController.swift */; };
 		2C1E4A181AC3509900119261 /* PersonsStatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1E4A171AC3509900119261 /* PersonsStatsViewController.swift */; };
 		2C5493B41AB0CA95005F0D19 /* ScoreGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */; };
+		2C62F54C1AD96046003594D0 /* Pokerlists.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C62F54B1AD96046003594D0 /* Pokerlists.swift */; };
 		2CAD85351AAE27DD009EDA67 /* PersonsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAD85341AAE27DD009EDA67 /* PersonsViewController.swift */; };
 		2CAD85371AAE27FA009EDA67 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAD85361AAE27FA009EDA67 /* AlertViewController.swift */; };
 		2CC387C31AAF6B610007B889 /* Scores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC387C21AAF6B610007B889 /* Scores.swift */; };
@@ -29,6 +31,7 @@
 		2CCE2A0C1AACC16700FD0A57 /* ResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A0B1AACC16700FD0A57 /* ResultsViewController.swift */; };
 		2CCE2A0E1AACC1E500FD0A57 /* iUIDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCE2A0D1AACC1E500FD0A57 /* iUIDatePicker.swift */; };
 		2CCFAE271ABDE36C00D5E360 /* iUITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCFAE261ABDE36C00D5E360 /* iUITextField.swift */; };
+		2CE603621AD2F2090085A3C5 /* TableScoresViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE603611AD2F2090085A3C5 /* TableScoresViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,10 +45,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2C1151291AD57A9E004DB4C7 /* CDData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDData.swift; sourceTree = "<group>"; };
 		2C1E4A131AC34A7900119261 /* BackUpCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackUpCode.swift; sourceTree = "<group>"; };
 		2C1E4A151AC34FAE00119261 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		2C1E4A171AC3509900119261 /* PersonsStatsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersonsStatsViewController.swift; sourceTree = "<group>"; };
 		2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreGroups.swift; sourceTree = "<group>"; };
+		2C62F54B1AD96046003594D0 /* Pokerlists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pokerlists.swift; sourceTree = "<group>"; };
 		2CAD85341AAE27DD009EDA67 /* PersonsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersonsViewController.swift; sourceTree = "<group>"; };
 		2CAD85361AAE27FA009EDA67 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		2CC387C21AAF6B610007B889 /* Scores.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scores.swift; sourceTree = "<group>"; };
@@ -68,6 +73,7 @@
 		2CCE2A0B1AACC16700FD0A57 /* ResultsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultsViewController.swift; sourceTree = "<group>"; };
 		2CCE2A0D1AACC1E500FD0A57 /* iUIDatePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iUIDatePicker.swift; sourceTree = "<group>"; };
 		2CCFAE261ABDE36C00D5E360 /* iUITextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iUITextField.swift; sourceTree = "<group>"; };
+		2CE603611AD2F2090085A3C5 /* TableScoresViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableScoresViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +118,7 @@
 				2CCE29DC1AAC9B9400FD0A57 /* AppDelegate.swift */,
 				2C1E4A131AC34A7900119261 /* BackUpCode.swift */,
 				2CCE29E11AAC9B9400FD0A57 /* ViewController.swift */,
+				2CE603611AD2F2090085A3C5 /* TableScoresViewController.swift */,
 				2C1E4A171AC3509900119261 /* PersonsStatsViewController.swift */,
 				2C1E4A151AC34FAE00119261 /* SettingsViewController.swift */,
 				2CCE2A0B1AACC16700FD0A57 /* ResultsViewController.swift */,
@@ -155,9 +162,11 @@
 		2CCE29FF1AAC9CAE00FD0A57 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				2C1151291AD57A9E004DB4C7 /* CDData.swift */,
 				2CCE2A051AAC9DB000FD0A57 /* Data.swift */,
 				2CCE2A071AAC9DBF00FD0A57 /* Persons.swift */,
 				2CCE2A091AACA26800FD0A57 /* Results.swift */,
+				2C62F54B1AD96046003594D0 /* Pokerlists.swift */,
 				2CC387C21AAF6B610007B889 /* Scores.swift */,
 				2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */,
 			);
@@ -280,12 +289,15 @@
 				2CCE2A081AAC9DBF00FD0A57 /* Persons.swift in Sources */,
 				2CCFAE271ABDE36C00D5E360 /* iUITextField.swift in Sources */,
 				2CCE2A0A1AACA26800FD0A57 /* Results.swift in Sources */,
+				2C11512A1AD57A9E004DB4C7 /* CDData.swift in Sources */,
 				2CCE2A061AAC9DB000FD0A57 /* Data.swift in Sources */,
+				2CE603621AD2F2090085A3C5 /* TableScoresViewController.swift in Sources */,
 				2CCE29DD1AAC9B9400FD0A57 /* AppDelegate.swift in Sources */,
 				2CCE2A0E1AACC1E500FD0A57 /* iUIDatePicker.swift in Sources */,
 				2C5493B41AB0CA95005F0D19 /* ScoreGroups.swift in Sources */,
 				2CAD85351AAE27DD009EDA67 /* PersonsViewController.swift in Sources */,
 				2CC387C31AAF6B610007B889 /* Scores.swift in Sources */,
+				2C62F54C1AD96046003594D0 /* Pokerlists.swift in Sources */,
 				2CAD85371AAE27FA009EDA67 /* AlertViewController.swift in Sources */,
 				2CCE2A0C1AACC16700FD0A57 /* ResultsViewController.swift in Sources */,
 				2C1E4A161AC34FAE00119261 /* SettingsViewController.swift in Sources */,

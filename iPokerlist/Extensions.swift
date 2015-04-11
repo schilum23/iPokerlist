@@ -23,12 +23,12 @@ public extension UINavigationBar {
         var navItem = UINavigationItem()
         self.items = [navItem]
         
-        var lButton = UIBarButtonItem(title: lBTitle, style: UIBarButtonItemStyle.Bordered, target: viewController, action: Selector(lBFunc))
+        var lButton = UIBarButtonItem(title: lBTitle, style: UIBarButtonItemStyle.Plain, target: viewController, action: Selector(lBFunc))
         navItem.leftBarButtonItem = lButton
 
 
         if rBTitle != nil && rBFunc != nil {
-            var rButton = UIBarButtonItem(title: rBTitle!, style: UIBarButtonItemStyle.Bordered, target: viewController, action: NSSelectorFromString(rBFunc!))
+            var rButton = UIBarButtonItem(title: rBTitle!, style: UIBarButtonItemStyle.Plain, target: viewController, action: NSSelectorFromString(rBFunc!))
             navItem.rightBarButtonItem = rButton
         }
         

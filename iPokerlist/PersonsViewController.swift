@@ -13,9 +13,10 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
     var data: Data!
     var tableView = UITableView()
     
+    // MARK: - Init / Coder
     override func viewDidLoad() {
         super.viewDidLoad()
-        data.changed = false
+        self.data.changed = false
         setupViews()
     }
     
@@ -56,18 +57,14 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             if name == "" {
                 alert.errorLabel.text = "* Ein Name muss angeben werden!"
-            } else if let oPER = self.data.arrayPersons.filter( { $0.name == name } ).first? {
+            } else if let oPER = self.data.arrayPersons.filter( { $0.name == name } ).first {
                 alert.errorLabel.text = "* Der Name \(name) ist bereits vorhanden!"
             }
-            else if countElements(name) > 50 {
+            else if count(name) > 50 {
                 alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
             }
             else {
-                let oPER = Persons(name: name)
-                oPER.addPersonWS()
-                self.data.arrayPersons.append(oPER)
-                self.data.sortArrayPersons()
-                self.data.changed = true
+               
                 self.tableView.reloadData()
                 alert.closeView(false)
             }
@@ -121,10 +118,10 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             if name == "" {
                 alert.errorLabel.text = "* Ein Name muss angeben werden!"
-            } else if let oPER = self.data.arrayPersons.filter( { $0.name == name } ).first? {
+            } else if let oPER = self.data.arrayPersons.filter( { $0.name == name } ).first {
                 alert.errorLabel.text = "* Der Name \(name) ist bereits vorhanden!"
             }
-            else if countElements(name) > 50 {
+            else if count(name) > 50 {
                 alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
             }
             else {
@@ -184,16 +181,11 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
             return
         })
         
-        // Spieler als "Ich" markieren
-        let me = oPER.me
+        // Spieler als "Ich" markieren        
         var meAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: oPER.me ? "Nicht ich" : "Ich" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
             
             self.tableView.editing = false
-            self.data.setAllPersonsToNotMe()
-            oPER.setMe(!me)
-            self.data.me_PER_ID = me ? oPER.id : 0
-            self.data.arrayPersons[indexPath.row] = oPER
-            self.data.changed = true
+            self.data.setPersonToMe(oPER)
             self.tableView.reloadData()
             return
         })
