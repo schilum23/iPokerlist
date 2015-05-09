@@ -13,6 +13,7 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     var textFieldTag = 0
     var data: Data!
     var scrollView = UIScrollView()
+    var viewHeader = UIView()
     var bottomView = UIView()
     let navBar = UINavigationBar()
     var iDatePicker = iUIDatePicker()
@@ -20,6 +21,10 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
+    }
+    
+    override func supportedInterfaceOrientations() -> Int {
+        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
     }
     
     override func shouldAutorotate() -> Bool {
@@ -45,20 +50,50 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         var title = "Neues Ergebnis"
         
         // NavigationBar
-        navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Zurück", lBFunc: "backButtonAction:", rBTitle: "Spieler", rBFunc: "personsButtonAction:")
+        navBar.defaultNavigationBar(title, viewController: self, lBTitle: "back", lBFunc: "backButtonAction:", rBTitle: "person", rBFunc: "personsButtonAction:")
         self.view.addSubview(navBar)
         
         // iDatePicker
         iDatePicker = iUIDatePicker(frame: CGRectMake(0, CGRectGetMaxY(navBar.frame), self.view.frame.width, 0))
-        iDatePicker.backgroundColor = UIColor.brownColor()
+        iDatePicker.backgroundColor = UIColor.whiteColor()
         iDatePicker.iDatePickerDelegate = self
         self.view.addSubview(iDatePicker)
         
-        // ScrollView
-        scrollView = UIScrollView(frame: CGRectMake(0, CGRectGetMaxY(navBar.frame) + iDatePicker.dateButtonHeight, self.view.frame.width, self.view.frame.height - CGRectGetMaxY(navBar.frame) - iDatePicker.dateButtonHeight - 44))
-        scrollView.backgroundColor = UIColor.whiteColor()
+        // Überschriften
+        let sizeLabelH = CGRectMake(10, 0, self.view.frame.width - 40 - 164, 44)
+        let sizetextFieldInH = CGRectMake(CGRectGetMaxX(sizeLabelH) + 10, 0, 82, 44)
+        let sizetextFieldOutH = CGRectMake(CGRectGetMaxX(sizetextFieldInH) + 10, 0, 82, 44)
+        viewHeader = UIView(frame: CGRectMake(0, CGRectGetMaxY(navBar.frame)  + iDatePicker.dateButtonHeight, self.view.frame.width, 44))
+        viewHeader.backgroundColor = UIColor.whiteColor()
+        self.view.addSubview(viewHeader)
         
-        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: CGFloat(data.arrayPersons.count) * 40.00)
+        let viewBorder = UIView(frame: CGRectMake(0, 42, self.view.frame.width, 2))
+        viewBorder.backgroundColor = UIColor.blackColor()
+        viewHeader.addSubview(viewBorder)
+
+        
+        let labelName = UILabel(frame: sizeLabelH)
+        labelName.textAlignment = NSTextAlignment.Left
+        labelName.font = .boldSystemFontOfSize(16.0)
+        labelName.text = "Name"
+        
+        let labelEin = UILabel(frame: sizetextFieldInH)
+        labelEin.textAlignment = .Center
+        labelEin.font = .boldSystemFontOfSize(16.0)
+        labelEin.text = "Ein"
+        
+        let labelAus = UILabel(frame: sizetextFieldOutH)
+        labelAus.textAlignment = .Center
+        labelAus.font = .boldSystemFontOfSize(16.0)
+        labelAus.text = "Aus"
+        
+        viewHeader.addSubview(labelName)
+        viewHeader.addSubview(labelEin)
+        viewHeader.addSubview(labelAus)
+        
+        // ScrollView
+        scrollView = UIScrollView(frame: CGRectMake(0, CGRectGetMaxY(viewHeader.frame), self.view.frame.width, self.view.frame.height - CGRectGetMaxY(viewHeader.frame) - 44))
+        scrollView.backgroundColor = UIColor.whiteColor()
         
         let keyboardToolbar = getKeyBoard()
         
@@ -67,45 +102,47 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         
         for oPER in data.arrayPersons {
             
-            let sizeLabel = CGRectMake(10, lastY, scrollView.frame.width - 40 - 164, 30)
-            let sizetextFieldIn = CGRectMake(CGRectGetMaxX(sizeLabel) + 10, lastY, 82, 30)
-            let sizetextFieldOut = CGRectMake(CGRectGetMaxX(sizetextFieldIn) + 10, lastY, 82, 30)
+            if oPER.visible {
+               let sizeLabel = CGRectMake(10, lastY, scrollView.frame.width - 40 - 164, 30)
+                let sizetextFieldIn = CGRectMake(CGRectGetMaxX(sizeLabel) + 10, lastY, 82, 30)
+                let sizetextFieldOut = CGRectMake(CGRectGetMaxX(sizetextFieldIn) + 10, lastY, 82, 30)
             
-            let label = UILabel(frame: sizeLabel)
-            let textFieldIn = iUITextField(frame: sizetextFieldIn)
-            let textFieldOut = iUITextField(frame: sizetextFieldOut)
+                let label = UILabel(frame: sizeLabel)
+                let textFieldIn = iUITextField(frame: sizetextFieldIn)
+                let textFieldOut = iUITextField(frame: sizetextFieldOut)
             
-            label.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100)
-            textFieldIn.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 1
-            textFieldOut.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 2
+                label.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100)
+                textFieldIn.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 1
+                textFieldOut.tag = (vInt("\(data.PKL_ID)\(oPER.id)") * 100) + 2
             
+                textFieldIn.delegate = self
+                textFieldOut.delegate = self
 
-            textFieldIn.delegate = self
-            textFieldOut.delegate = self
+                textFieldIn.borderStyle = UITextBorderStyle.Line
+                textFieldOut.borderStyle = UITextBorderStyle.Line
+            
+                textFieldIn.keyboardType = UIKeyboardType.DecimalPad
+                textFieldOut.keyboardType = UIKeyboardType.DecimalPad
+            
+                textFieldIn.inputAccessoryView = keyboardToolbar
+                textFieldOut.inputAccessoryView = keyboardToolbar
+            
+                textFieldIn.number = tagCounter
+                textFieldOut.number = tagCounter + 1
+            
+                label.font = oPER.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+                label.text = oPER.name
+            
+                scrollView.addSubview(label)
+                scrollView.addSubview(textFieldIn)
+                scrollView.addSubview(textFieldOut)
 
-            textFieldIn.borderStyle = UITextBorderStyle.Line
-            textFieldOut.borderStyle = UITextBorderStyle.Line
-            
-            textFieldIn.keyboardType = UIKeyboardType.DecimalPad
-            textFieldOut.keyboardType = UIKeyboardType.DecimalPad
-            
-            textFieldIn.inputAccessoryView = keyboardToolbar
-            textFieldOut.inputAccessoryView = keyboardToolbar
-            
-            textFieldIn.number = tagCounter
-            textFieldOut.number = tagCounter + 1
-            
-            label.font = oPER.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
-            label.text = oPER.name
-            
-            scrollView.addSubview(label)
-            scrollView.addSubview(textFieldIn)
-            scrollView.addSubview(textFieldOut)
-
-            tagCounter += 2
-            lastY = 10.00 + CGRectGetMaxY(sizeLabel)
+                tagCounter += 2
+                lastY = 10.00 + CGRectGetMaxY(sizeLabel)
+            }
         }
 
+        scrollView.contentSize = CGSize(width: scrollView.frame.width, height: CGFloat(data.arrayPersons.filter( { $0.visible } ).count) * 40.00)
         self.view.addSubview(scrollView)
         
         // bottomView
@@ -114,7 +151,7 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         saveButton.setTitle("Speichern", forState: UIControlState.Normal)
         saveButton.addTarget(self, action: "saveButtonAction:", forControlEvents: UIControlEvents.TouchUpInside)
         bottomView.addSubview(saveButton)
-        bottomView.backgroundColor = UIColor.blueColor()
+        bottomView.backgroundColor = UIColorFromHex(0x3498db, alpha: 1)
         self.view.addSubview(bottomView)
         
     }
@@ -127,17 +164,21 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         keyboardToolbar.backgroundColor = UIColor.whiteColor()
         
         let nextBarButton = UIBarButtonItem(title: "Weiter", style: .Plain, target: self, action: Selector("goToTextField:"))
-        nextBarButton.width = self.view.frame.width / 3
+        //nextBarButton.width = self.view.frame.width / 3
         nextBarButton.tag = 1
         
         let previousBarButton = UIBarButtonItem(title: "Zurück", style: .Plain, target: self, action: Selector("goToTextField:"))
-        previousBarButton.width = self.view.frame.width / 3
+       // previousBarButton.width = self.view.frame.width / 3
         previousBarButton.tag = -1
         
         let doneBarButton = UIBarButtonItem(title: "Fertig", style: .Plain, target: self, action: Selector("doneClicked:"))
-        doneBarButton.width = self.view.frame.width / 3
+      //  doneBarButton.width = self.view.frame.width / 3
         
-        keyboardToolbar.items = [previousBarButton, doneBarButton, nextBarButton]
+        let flex1 = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+  
+        let flex2 = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
+        
+        keyboardToolbar.items = [previousBarButton, flex1, doneBarButton, flex2, nextBarButton]
         return keyboardToolbar
     }
     
@@ -164,14 +205,7 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
                     noErrors = false
                 } else if succesfullValidated && textFieldIn.text != "" && textFieldOut.text != ""  {
                     
-                    let oRES = Results(date: iDatePicker.date)
-                    oRES.PKL_ID = data.PKL_ID
-                    oRES.PER_ID = PER_ID
-                    oRES.chipsIn = vDouble(textFieldIn.text)
-                    oRES.chipsOut = vDouble(textFieldOut.text)
-                    oRES.addResultWS()
-                    
-                    data.arrayResults.append(oRES)
+                    data.addResult(iDatePicker.date, PER_ID: PER_ID, chipsIn: textFieldIn.text, chipsOut: textFieldOut.text)
                 }
             }
         }
@@ -185,19 +219,20 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
             data.groupBydate(TempDaten: data.arrayResults)
             data.calculateScore()
             data.calculateGroupedScores()
+            data.saveDataToCoreData()
             data.changed = true
         }
         
         if !noErrors {
 
             var customIcon = UIImage(named: "lightbulb")
-            var alertview = AlertViewController().show(self, title: "Speichern nicht möglich! ", text: "Es wurde nicht nicht für alle Spieler die korrekten Ein- und Auszahlungen angegeben.", buttonText: "OK", color: UIColorFromHex(0x9b59b6, alpha: 1), iconImage: customIcon)
+            var alertview = AlertViewController().show(self, title: "Speichern nicht möglich! ", text: "Es wurde nicht nicht für alle Spieler die korrekten Ein- und Auszahlungen angegeben.", buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1), iconImage: customIcon)
             alertview.setTextTheme(.Light)
         }
         
         if zeroEntries && noErrors {
             var customIcon = UIImage(named: "lightbulb")
-            var alertview = AlertViewController().show(self, title: "Speichern nicht möglich! ", text: "Keine Daten angegeben.", buttonText: "OK", color: UIColorFromHex(0x9b59b6, alpha: 1), iconImage: customIcon)
+            var alertview = AlertViewController().show(self, title: "Speichern nicht möglich! ", text: "Keine Daten angegeben.", buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1), iconImage: customIcon)
             alertview.setTextTheme(.Light)
 
         }
@@ -206,10 +241,13 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
 
     }
     
-    // Scrollview anpassen wenn sich die iDatepicker Größe ändert
+    // HeaderView anpassen wenn sich die iDatepicker Größe ändert
     func resizeView(height: CGFloat) {
-        scrollView.frame.origin.y = CGRectGetMaxY(navBar.frame) + height
-        scrollView.frame.size.height = self.view.frame.height - CGRectGetMaxY(navBar.frame) - height - 44
+        viewHeader.frame.origin.y = CGRectGetMaxY(navBar.frame) + height
+        
+        scrollView.frame.origin.y = CGRectGetMaxY(viewHeader.frame)
+        scrollView.frame.size.height = self.view.frame.height - CGRectGetMaxY(viewHeader.frame) - 44
+
     }
     
     // Textfield ist aktiv

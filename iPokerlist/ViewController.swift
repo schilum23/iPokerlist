@@ -23,35 +23,35 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     var tableViewScoresByYear = UITableView()
     var picker = UIPickerView()
     var year = 0
+    var pages = 3
     
     
     override func viewDidLoad() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "rotated", name: UIDeviceOrientationDidChangeNotification, object: nil)
+      
         super.viewDidLoad()
         self.data = self.data.dataTemp!
         arrayScoresYear = data.arrayGroupedScores.first?.arrayScores
         year = vInt(data.arrayGroupedScores.first?.groupName)
         setupViews()
-        
     }
-    
-   
 
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         
         if data.changed {
-            
+            arrayScoresYear = data.arrayGroupedScores.first?.arrayScores
             setupViews()
             data.changed = false
         }
     }
     
-    
-
-    
     override func shouldAutorotate() -> Bool {
         return false
+    }
+    
+    override func supportedInterfaceOrientations() -> Int {
+        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
     }
     
     // MARK: - Help Functions
@@ -60,11 +60,18 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         self.view.removeSubViews()
         
         self.view.backgroundColor = UIColor.whiteColor()
-        var title = "PokerlistName"
+        var title = "Pokerliste Family"
         
         // NavigationBar
         let navBar = UINavigationBar()
-        navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Menü", lBFunc: "settingsButtonAction:", rBTitle: "Add", rBFunc: "addButtonAction:")
+        
+        if data.rightToChangeData {
+            navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Menü", lBFunc: "settingsButtonAction:", rBTitle: "add", rBFunc: "addButtonAction:")
+
+        } else {
+            navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Menü", lBFunc: "settingsButtonAction:", rBTitle: "person", rBFunc: "personsButtonAction:")
+ 
+        }
         self.view.addSubview(navBar)
         
         // ToolBar
@@ -76,7 +83,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         let maxY = CGRectGetMaxY(toolBar.frame)
         scrollView = UIScrollView(frame: CGRect(x: 0.0, y: maxY, width: self.view.frame.width, height: self.view.frame.height - maxY))
         scrollView.delegate = self
-        scrollView.contentSize = CGSize(width: scrollView.frame.width * CGFloat(4), height: scrollView.frame.height)
+        scrollView.contentSize = CGSize(width: scrollView.frame.width * CGFloat(pages), height: scrollView.frame.height)
         scrollView.bounces = false
         scrollView.pagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
@@ -125,12 +132,12 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             
         }
         
-        /// View for Stats
-        let viewStats = UIView(frame: CGRect(x: 0.0, y: 0.0, width: scrollView.frame.width, height: scrollView.frame.height))
-        viewStats.frame.origin.x += CGFloat(3) * self.view.frame.width
-        viewStats.backgroundColor = UIColor.whiteColor()
-        scrollView.addSubview(viewStats)
-        
+        // View for Stats
+//        let viewStats = UIView(frame: CGRect(x: 0.0, y: 0.0, width: scrollView.frame.width, height: scrollView.frame.height))
+//        viewStats.frame.origin.x += CGFloat(3) * self.view.frame.width
+//        viewStats.backgroundColor = UIColor.whiteColor()
+//        scrollView.addSubview(viewStats)
+//        
         self.view.addSubview(scrollView)
         
         var scrollToFrame = scrollView.frame
@@ -162,9 +169,9 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         
         var buttonText = ["Gesamt", "Alle", "Ergebnisse", "Statistik"]
         
-        for i in 0..<4 {
+        for i in 0..<pages {
             
-            let button = UIButton(frame: CGRectMake(CGFloat(i) * (toolBar.frame.width / CGFloat(4)), 10, (toolBar.frame.width / CGFloat(4)), 34))
+            let button = UIButton(frame: CGRectMake(CGFloat(i) * (toolBar.frame.width / CGFloat(pages)), 10, (toolBar.frame.width / CGFloat(pages)), 34))
             
             button.tag = i
             button.addTarget(self, action: "tapSegmentButtonAction:", forControlEvents: UIControlEvents.TouchUpInside)
@@ -209,9 +216,16 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         self.presentViewController(resultsView, animated: true, completion: nil)
     }
     
+    // Personen öffnen
+    func personsButtonAction(button: UIButton) {
+        let personsView = PersonsViewController()
+        personsView.data = data
+        self.presentViewController(personsView, animated: true, completion: nil)
+    }
+    
     // Switch Selector
     func setupSelector() {
-        selectionBar = UIView(frame: CGRectMake(0, 40, (toolBar.frame.width / CGFloat(4)), 4))
+        selectionBar = UIView(frame: CGRectMake(0, 40, (toolBar.frame.width / CGFloat(pages)), 4))
         selectionBar.backgroundColor = UIColor.greenColor()
         selectionBar.alpha = 0.8
         toolBar.addSubview(selectionBar)
@@ -439,7 +453,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             (cell!.viewWithTag(3) as! UILabel).text = String(format: "%.2f", vDouble(oSCO?.ratio))
             
             for i in 1...3 {
-                (cell!.viewWithTag(i) as! UILabel).font = oSCO!.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+                (cell!.viewWithTag(i) as! UILabel).font = oSCO!.linkedPerson(self.data.arrayPersons) != nil && oSCO!.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
             }
             
         case 2:
@@ -452,6 +466,10 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             cell?.textLabel?.text = "\(oRES.linkedPerson(self.data.arrayPersons)!.name) - \(ratio)%"
             cell?.detailTextLabel?.text = "In: \(valueIn) Out: \(valueOut)"
             
+            cell?.textLabel?.font = oRES.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            cell?.detailTextLabel?.font = oRES.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(12.0) : .systemFontOfSize(12.0)
+
+            
         default:
             println("TableView ohne Tag")
         }
@@ -459,6 +477,54 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         return cell!
        
     }
+    
+    // Cell bearbeitbar
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        if tableView.tag != 2 {
+            return true
+        }
+        return true
+    }
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+    }
+    
+    // Action für Cell
+    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]?  {
+        
+       // if tableView.tag != 2 {
+         //   return nil
+       // }
+        
+        let oRES = data.arrayGroupedResults[indexPath.section][indexPath.row]
+        let alert = AlertViewController()
+        var deleteAction: UITableViewRowAction?
+        
+        //  löschen
+        if data.rightToChangeData {
+            deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Löschen" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
+                
+                alert.info(self, title: "Ergebnis löschen", text: "Möchten Sie das Ergbnis wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", buttonText: "Löschen",  cancelButtonText: "Abbrechen")
+                alert.addAction {
+                    self.data.deletePerson(indexPath.row)
+                    tableView.reloadData()
+                    self.tableViewScores.reloadData()
+                    self.tableViewScoresByYear.reloadData()
+                    alert.closeView(false)
+                }
+                tableView.editing = false
+                return
+            })
+        }
+        
+        if deleteAction == nil {
+            return nil
+        } else {
+            return [deleteAction!]
+        }
+        
+    }
+
     
     // Zeilen Klick - Spieler Statistik aurufen
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -469,6 +535,27 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             oSCO = data.arrayScores[indexPath.row]
         case 1:
             oSCO = arrayScoresYear?[indexPath.row]
+        case 2:
+            if data.rightToChangeData {
+                let oRES = data.arrayGroupedResults[indexPath.section][indexPath.row]
+                
+                let alert = AlertViewController()
+                alert.info(self, title: "Resultat bearbeiten", text: "Einzahlung/Auszahlung bearbeiten", placeholder: "Ein", buttonText: "Speichern",  cancelButtonText: "Abbrechen")
+                alert.addAction {
+                    
+                    let chipsIn = alert.textField1.text
+                    
+                    if vDouble(chipsIn) == 0 {
+                        alert.errorLabel.text = "* Ein Einzahlungsbetrag muss angegeben werden!"
+                    }
+                    else {
+                        self.data.updateResult(oRES, chipsIn: chipsIn, chipsOut: chipsIn)
+                        tableView.reloadData()
+                        alert.closeView(false)
+                    }
+                }
+
+            }
         default:
             oSCO = nil
         }
@@ -482,6 +569,8 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             personsStatsView.oSCO = oSCO
             self.presentViewController(personsStatsView, animated: true, completion: nil)
         }
+        
+        tableView.deselectRowAtIndexPath(indexPath, animated: false)
     }
     
     // MARK: - PickerView
@@ -515,7 +604,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             return
         }
         
-        var xFromCenter:CGFloat = (self.view.frame.size.width - scrollView.contentOffset.x) / CGFloat(4)
+        var xFromCenter:CGFloat = (self.view.frame.size.width - scrollView.contentOffset.x) / CGFloat(pages)
         var xCoor:CGFloat = selectionBar.frame.size.width
         
         selectionBar.frame = CGRectMake(xCoor - xFromCenter, selectionBar.frame.origin.y, selectionBar.frame.size.width, selectionBar.frame.size.height)

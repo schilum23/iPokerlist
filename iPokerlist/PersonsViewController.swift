@@ -20,6 +20,10 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
         setupViews()
     }
     
+    override func supportedInterfaceOrientations() -> Int {
+        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
+    }
+    
     override func shouldAutorotate() -> Bool {
         return false
     }
@@ -34,7 +38,13 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         // NavigationBar
         let navBar = UINavigationBar()
-        navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Zurück", lBFunc: "backButtonAction:", rBTitle: "Neu", rBFunc: "newPersonButtonAction:")
+        if data.rightToChangeData {
+            navBar.defaultNavigationBar(title, viewController: self, lBTitle: "back", lBFunc: "backButtonAction:", rBTitle: "add", rBFunc: "newPersonButtonAction:")
+            
+        } else {
+            navBar.defaultNavigationBar(title, viewController: self, lBTitle: "back", lBFunc: "backButtonAction:")
+            
+        }
         self.view.addSubview(navBar)
         
         // TableView
@@ -100,6 +110,8 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         cell!.textLabel?.font = oPER.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+        cell!.textLabel?.textColor = oPER.visible ? UIColor.blackColor() : UIColor.lightGrayColor()
+
         cell!.textLabel?.text = oPER.name
         
         return cell!
@@ -125,12 +137,7 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
             }
             else {
-                oPER.name = name
-                oPER.changed = NSDate()
-                oPER.updatePersonWS()
-                self.data.arrayPersons[indexPath.row] = oPER
-                self.data.sortArrayPersons()
-                self.data.changed = true
+                self.data.updatePerson(indexPath.row, name: name)
                 self.tableView.reloadData()
                 alert.closeView(false)
             }
@@ -150,33 +157,29 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let oPER = data.arrayPersons[indexPath.row]
         let alert = AlertViewController()
+        var deleteAction: UITableViewRowAction?
 
         // Spieler löschen
-        var deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Löschen" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
+        if data.rightToChangeData {
+            deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Löschen" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
             
             alert.info(self, title: "Spieler löschen", text: "Möchten Sie den Spieler \(oPER.name) wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", buttonText: "Löschen",  cancelButtonText: "Abbrechen")
             alert.addAction {
-                oPER.deleted = NSDate()
-                oPER.deletePersonWS()
-                self.data.arrayPersons.removeAtIndex(indexPath.row)
-                self.data.changed = true
-                self.tableView.reloadData()
-                alert.closeView(false)
-            }
-            self.tableView.editing = false
-            
-            return
-        })
+                    self.data.deletePerson(indexPath.row)
+                    self.tableView.reloadData()
+                    alert.closeView(false)
+                }
+                self.tableView.editing = false
+                return
+            })
+        }
         
         // Spieler ausblenden
-        var hiddeAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Ausblenden" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
+        var hiddeAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: oPER.visible ? "Ausblenden" : "Einblenden" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
             
-            alert.info(self, title: "Spieler ausblenden", text: "Möchten Sie den Spieler \(oPER.name) ausblenden?", buttonText: "Ausblenden",  cancelButtonText: "Abbrechen")
-            alert.addAction {
-                alert.closeView(false)
-            }
             self.tableView.editing = false
-
+            self.data.hidePerson(indexPath.row, setVisible: !oPER.visible)
+            self.tableView.reloadData()
 
             return
         })
@@ -185,13 +188,18 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
         var meAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: oPER.me ? "Nicht ich" : "Ich" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
             
             self.tableView.editing = false
-            self.data.setPersonToMe(oPER)
+            self.data.setPersonToMe(indexPath.row, setMe: !oPER.me)
             self.tableView.reloadData()
+
             return
         })
         
         meAction.backgroundColor = UIColor.greenColor()
         hiddeAction.backgroundColor = UIColor.orangeColor()
-        return [deleteAction,hiddeAction, meAction]
+        if deleteAction == nil {
+            return [hiddeAction, meAction]
+        } else {
+            return [deleteAction!,hiddeAction, meAction]
+        }
     }
 }

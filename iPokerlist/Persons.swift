@@ -68,7 +68,6 @@ class Persons: NSObject {
         self.PKL_ID = vInt(wsData["PKL_ID"])
         self.name = vString(wsData["name"])
         self.defaultVisible = vBool(wsData["defaultVisible"])
-        self.me = (self.id == NSUserDefaults.standardUserDefaults().integerForKey("PER_ID"))
         
         // Status 1 = von Webservice
         self.state = 1
@@ -83,7 +82,6 @@ class Persons: NSObject {
     // Spieler als "Ich" markieren
     func setToMe(me: Bool) {
         self.me = me
-        NSUserDefaults.standardUserDefaults().setInteger(!me ? 0 : self.id, forKey: "PER_ID")
     }
 
     // Spieler hinzufügen

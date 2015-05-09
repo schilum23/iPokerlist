@@ -77,9 +77,9 @@ class TableScoresViewController: UIViewController, UITableViewDataSource, UITabl
         viewBorder.backgroundColor = UIColor.blackColor()
         view.addSubview(viewBorder)
             
-        let sizeLabelName: CGFloat = self.view.frame.width - 50 - (90 * 5) - 30
+        let sizeLabelName: CGFloat = self.view.frame.width - 58 - (90 * 5) - 30
             
-        let labelPos = UILabel(frame: CGRectMake(10, 0, 40, view.frame.height))
+        let labelPos = UILabel(frame: CGRectMake(0, 0, 58, view.frame.height))
         labelPos.textAlignment = NSTextAlignment.Center
         labelPos.font = .boldSystemFontOfSize(16.0)
         labelPos.text = "Pos."
@@ -135,14 +135,14 @@ class TableScoresViewController: UIViewController, UITableViewDataSource, UITabl
         if cell == nil {
             cell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
             
-            let sizeLabelName: CGFloat = self.view.frame.width - 50 - (90 * 5) - 30
+            let sizeLabelName: CGFloat = self.view.frame.width - 58 - (90 * 5) - 30
             
-            let labelPos = UILabel(frame: CGRectMake(5, 0, 18, cell!.frame.height))
+            let labelPos = UILabel(frame: CGRectMake(0, 0, 30, cell!.frame.height))
             labelPos.tag = 1
             labelPos.textAlignment = .Right
             labelPos.font = .boldSystemFontOfSize(16.0)
             
-            let labelLastPos = UILabel(frame: CGRectMake(25, 0, 25, cell!.frame.height))
+            let labelLastPos = UILabel(frame: CGRectMake(33, 0, 25, cell!.frame.height))
             labelLastPos.tag = 2
             labelLastPos.textAlignment = .Left
             labelLastPos.font = .boldSystemFontOfSize(10.0)
@@ -199,7 +199,8 @@ class TableScoresViewController: UIViewController, UITableViewDataSource, UITabl
         (cell!.viewWithTag(8) as! UILabel).text = vString(oSCO.games)
 
         for i in 1...8 {
-            (cell!.viewWithTag(i) as! UILabel).font = oSCO.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            let size: CGFloat = i == 2 ? 10.00 : 16.00
+            (cell!.viewWithTag(i) as! UILabel).font = oSCO.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(size) : .systemFontOfSize(size)
         }
  
         return cell!

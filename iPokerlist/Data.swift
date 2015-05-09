@@ -23,9 +23,11 @@ class Data: NSObject {
     var arrayScores = [Scores]()
     var arrayGroupedScores = [ScoreGroups]()
     var changed = false
-    var PKL_ID = NSUserDefaults.standardUserDefaults().integerForKey("PKL_ID")
+    var PKL_ID = 1 //NSUserDefaults.standardUserDefaults().integerForKey("PKL_ID")
+    var rightToChangeData = true
     var error: NSError?
     var dataTemp: Data?
+    var lastUpdate: NSDate?
     
     // MARK: - Init / Coder
     override init() {
@@ -75,8 +77,6 @@ class Data: NSObject {
             newData.pkl_ID = PKL_ID
         }
 
-      
-
         if !managedContext.save(&error) {
             println("ERROR: Speichern in CoreData nicht möglich \(error), \(error?.userInfo)")
         }
@@ -91,12 +91,16 @@ class Data: NSObject {
         let entetyDescription:NSEntityDescription = NSEntityDescription.entityForName("CDData", inManagedObjectContext: managedContext)!
         
         fetchRequest.entity = entetyDescription
-        fetchRequest.predicate = NSPredicate(format: "PKL_ID = \(self.PKL_ID)")
+        fetchRequest.predicate = NSPredicate(format: "pkl_ID = \(self.PKL_ID)")
 
         fetchRequest.returnsObjectsAsFaults = false
         var error: NSError?
         
         if let result: [NSManagedObject]? = managedContext.executeFetchRequest(fetchRequest, error: nil) as? [NSManagedObject] {
+            
+            if result?.count == 0 {
+                return nil
+            }
             
             let dataObject: NSManagedObject = result![0]
             
@@ -108,8 +112,64 @@ class Data: NSObject {
         return nil
     }
     
+    // Updates holen
+    func getUpdates() -> Bool {
+        
+//        var newData = false
+//        
+//        // Personen
+//        let wsPersons = getDictionary(wsLinkPersons, PKL_ID: PKL_ID)
+//        
+//        for dic in wsPersons {
+//            
+//            if let oPER: Persons = self.arrayPersons.filter( { $0.id == vInt(dic["id"]) } ).first {
+//                
+//                if oPER.changed != vDate(dic["changed"]) {
+//                    
+//                }
+//                
+//            } else if 1 == 1 {
+//                
+//            }
+//            self.id = vInt(wsData["id"])
+//            self.created = vDate(wsData["created"])
+//            self.changed = vDate(wsData["changed"])
+//            self.deleted = vDate(wsData["Deleted"])
+//            self.PKL_ID = vInt(wsData["PKL_ID"])
+//            self.name = vString(wsData["name"])
+//            
+//            var newPerson: Persons = Persons(wsData: dic)
+//            arrayPersons.append(newPerson)
+//        }
+//        
+//        // Resultate
+//        let wsResults = getDictionary(wsLinkResults, PKL_ID: PKL_ID)
+//        
+//        for dic in wsResults {
+//            var newResult: Results = Results(wsData: dic)
+//            arrayResults.append(newResult)
+//        }
+//        
+//        // Nach Datum gruppieren
+//        groupBydate(TempDaten: arrayResults)
+//        
+//        calculateScore()
+//        calculateGroupedScores()
+//        sortArrayResults()
+//
+        return false
+    }
+    
     // Alle Daten beim erstmaligen hinzufügen laden
     func getAllData() {
+        
+        // Personen
+        let wsPersons = getDictionary(wsLinkPersons, PKL_ID: PKL_ID)
+        
+        for dic in wsPersons {
+            var newPerson: Persons = Persons(wsData: dic)
+            arrayPersons.append(newPerson)
+        }
         
         // Resultate
         let wsResults = getDictionary(wsLinkResults, PKL_ID: PKL_ID)
@@ -121,14 +181,6 @@ class Data: NSObject {
         
         // Nach Datum gruppieren
         groupBydate(TempDaten: arrayResults)
-        
-        // Personen
-        let wsPersons = getDictionary(wsLinkPersons, PKL_ID: PKL_ID)
-        
-        for dic in wsPersons {
-            var newPerson: Persons = Persons(wsData: dic)
-            arrayPersons.append(newPerson)
-        }
         
         calculateScore()
         calculateGroupedScores()
@@ -142,18 +194,17 @@ class Data: NSObject {
     }
     
     // Person als ICH markieren
-    func setPersonToMe(oPER: Persons) {
+    func setPersonToMe(index: Int, setMe: Bool) {
         
-        NSUserDefaults.standardUserDefaults().setInteger(0, forKey: "PER_ID")
-        
-        for oPER_ in self.arrayPersons {
-            if oPER_.id == oPER.id {
-                oPER_.setToMe(!oPER.me)
-            } else {
-                oPER.me = false
-            }
+        for oPER in self.arrayPersons {
+           oPER.me = false
         }
+        
+        self.arrayPersons[index].me = setMe
+
         self.changed = true
+        
+        saveDataToCoreData()
     }
     
     // Person hinzufügen
@@ -168,11 +219,139 @@ class Data: NSObject {
         if oPER.addPersonWS() {
             oPER.state = 1
         }
+        saveDataToCoreData()
+    }
+    
+    // Person bearbeiten
+    func updatePerson(index: Int, name: String) {
+
+        self.arrayPersons[index].name = name
+        self.arrayPersons[index].changed = NSDate()
+        self.sortArrayPersons()
+        self.changed = true
+        
+        // THREAD!!!!
+        if self.arrayPersons[index].updatePersonWS() {
+            self.arrayPersons[index].state = 1
+        }
+        saveDataToCoreData()
+    }
+    
+    // Person ausblenden
+    func hidePerson(index: Int, setVisible: Bool) {
+        
+        self.arrayPersons[index].visible = setVisible
+        self.arrayPersons[index].changed = NSDate()
+        self.changed = true
+        
+        calculateScore()
+        calculateGroupedScores()
+        saveDataToCoreData()
+    }
+    
+    // Person löschen
+    func deletePerson(index: Int) {
+        
+        self.arrayPersons[index].deleted = NSDate()
+        self.arrayPersons[index].changed = NSDate()
+        self.changed = true
+
+        // THREAD!!!!
+        if self.arrayPersons[index].deletePersonWS() {
+            self.arrayPersons[index].state = 1
+        }
+        
+        for i in reverse(0..<self.arrayResults.count) {
+            if self.arrayResults[i].PER_ID == self.arrayPersons[index].id {
+                self.arrayResults.removeAtIndex(i)
+            }
+        }
+        
+        self.arrayPersons.removeAtIndex(index)
+        groupBydate(TempDaten: self.arrayResults)
+        calculateScore()
+        calculateGroupedScores()
+        self.saveDataToCoreData()
     }
 
     // Ergebnisse Array sortieren
     func sortArrayResults() {
         self.arrayResults.sort( { $0.date == $1.date ? $0.PER_ID < $1.PER_ID : $0.date.timeIntervalSinceNow > $1.date.timeIntervalSinceNow })
+    }
+    
+    // Ergbnis löschen
+    func deleteResult(oRES: Results) {
+        
+        oRES.deleted = NSDate()
+        oRES.changed = NSDate()
+        self.changed = true
+        
+        // THREAD!!!!
+        if oRES.deleteResultWS() {
+            oRES.state = 1
+        }
+
+        //self.arrayResults.removeAtIndex(index)
+        groupBydate(TempDaten: self.arrayResults)
+        calculateScore()
+        calculateGroupedScores()
+        self.saveDataToCoreData()
+    }
+
+    
+    // Ergebnis hinzufügen
+    func addResult(date: NSDate, PER_ID: Int, chipsIn: String, chipsOut: String) {
+        
+        let oRES = Results(date: date)
+        oRES.PKL_ID = self.PKL_ID
+        oRES.PER_ID = PER_ID
+        oRES.chipsIn = vDouble(chipsIn)
+        oRES.chipsOut = vDouble(chipsOut)
+        
+        oRES.chipsWin = oRES.chipsOut - oRES.chipsIn
+        oRES.moneyIn = (oRES.chipsIn/100.00) * oRES.factor
+        oRES.moneyOut = (oRES.chipsOut/100.00) * oRES.factor
+        oRES.moneyWin = oRES.moneyOut - oRES.moneyIn
+        oRES.ratio = (oRES.chipsIn > 0) ? (oRES.chipsOut / oRES.chipsIn) * 100 : 0
+        
+        self.arrayResults.append(oRES)
+        
+        if oRES.addResultWS() {
+            oRES.state = 1
+        }
+    }
+    
+    // Ergebnis bearbeiten
+    func updateResult(oRES: Results, chipsIn: String, chipsOut: String) {
+
+        oRES.changed = NSDate()
+        oRES.chipsIn = vDouble(chipsIn)
+        oRES.chipsOut = vDouble(chipsOut)
+        // Gewinn, Verhätlnis und Geld
+        oRES.chipsWin = oRES.chipsOut - oRES.chipsIn
+        oRES.moneyIn = (oRES.chipsIn/100.00) * oRES.factor
+        oRES.moneyOut = (oRES.chipsOut/100.00) * oRES.factor
+        oRES.moneyWin = oRES.moneyOut - oRES.moneyIn
+        
+        oRES.ratio = (oRES.chipsIn > 0) ? (oRES.chipsOut / oRES.chipsIn) * 100 : 0
+
+        self.changed = true
+        
+        for i in 0..<self.arrayResults.count {
+            if self.arrayResults[i].id == oRES.id {
+                 self.arrayResults[i] = oRES
+            }
+        }
+        
+        // THREAD!!!!
+        if oRES.updateResultWS() {
+            oRES.state = 1
+        }
+        
+        groupBydate(TempDaten: self.arrayResults)
+        calculateScore()
+        calculateGroupedScores()
+        self.saveDataToCoreData()
     }
     
     // Liste berechnen
@@ -189,6 +368,10 @@ class Data: NSObject {
         }
         
         for oRES in self.arrayResults {
+            
+            if !oRES.linkedPerson(self.arrayPersons)!.visible {
+                continue
+            }
             
             var oSCO: Scores? = self.arrayScores.filter( { $0.PER_ID == oRES.PER_ID} ).first
             if oSCO == nil {
@@ -273,6 +456,10 @@ class Data: NSObject {
             }
             
             for oRES in self.arrayResults.filter({ $0.year == year.0 }).reverse() {
+                
+                if !oRES.linkedPerson(self.arrayPersons)!.visible {
+                    continue
+                }
                 
                 var oSCO: Scores? = oGSCO?.arrayScores.filter( { $0.PER_ID == oRES.PER_ID} ).first
 

@@ -18,7 +18,7 @@ class Results: NSObject {
     var deleted: NSDate?
     var PKL_ID: Int = 1
     var PER_ID: Int = 1
-    var state: Int = 1
+    var state: Int = 0
     var date: NSDate!
     var year: String = ""
     var dateString: String = ""
@@ -36,49 +36,6 @@ class Results: NSObject {
     override init() {
         super.init()
     }
-    
-    init(date: NSDate) {
-        super.init()
-        
-        let flags: NSCalendarUnit = .CalendarUnitDay | .CalendarUnitMonth | .CalendarUnitYear
-        let components = NSCalendar.currentCalendar().components(flags, fromDate: vDate(date))
-        
-        self.dateString = vString(date)
-        self.date = vDate(date)
-        self.year = vString(components.year)
-    }
-    
-    init(wsData: [String:NSObject]) {
-        super.init()
-        
-        let flags: NSCalendarUnit = .CalendarUnitDay | .CalendarUnitMonth | .CalendarUnitYear
-        let components = NSCalendar.currentCalendar().components(flags, fromDate: vDate(wsData["date"]))
-        
-        self.id = vInt(wsData["id"])
-        self.created = vDate(wsData["created"])
-        self.changed = vDate(wsData["changed"])
-        self.deleted = vDate(wsData["Deleted"])
-        self.PKL_ID = vInt(wsData["RES_PKL"])
-        self.PER_ID = vInt(wsData["PER_ID"])
-        self.dateString = vString(wsData["date"])
-        self.date = vDate(wsData["date"])
-        self.year = vString(components.year)
-        self.chipsIn = vDouble(wsData["chipsIn"])
-        self.chipsOut = vDouble(wsData["chipsOut"])
-        self.factor = vDouble(wsData["factor"])
-        
-        // Status 0 = von Webservice
-        self.state = 0
-        
-        // Gewinn, Verhätlnis und Geld
-        self.chipsWin = self.chipsOut - self.chipsIn
-        self.moneyIn = (self.chipsIn/100.00) * self.factor
-        self.moneyOut = (self.chipsOut/100.00) * self.factor
-        self.moneyWin = self.moneyOut - self.moneyIn
-        
-        self.ratio = (self.chipsIn > 0) ? (self.chipsOut / self.chipsIn) * 100 : 0
-    }
-
     
     init(coder aDecoder: NSCoder!) {
         self.id = aDecoder.decodeObjectForKey("id") as! Int
@@ -123,12 +80,55 @@ class Results: NSObject {
         aCoder.encodeObject(ratio, forKey: "ratio")
         aCoder.encodeObject(error, forKey: "error")
     }
+
+    
+    init(date: NSDate) {
+        super.init()
+        
+        let flags: NSCalendarUnit = .CalendarUnitDay | .CalendarUnitMonth | .CalendarUnitYear
+        let components = NSCalendar.currentCalendar().components(flags, fromDate: vDate(date))
+        
+        self.dateString = vString(date)
+        self.date = vDate(date)
+        self.year = vString(components.year)
+    }
+    
+    init(wsData: [String:NSObject]) {
+        super.init()
+        
+        let flags: NSCalendarUnit = .CalendarUnitDay | .CalendarUnitMonth | .CalendarUnitYear
+        let components = NSCalendar.currentCalendar().components(flags, fromDate: vDate(wsData["date"]))
+        
+        self.id = vInt(wsData["id"])
+        self.created = vDate(wsData["created"])
+        self.changed = vDate(wsData["changed"])
+        self.deleted = vDate(wsData["Deleted"])
+        self.PKL_ID = vInt(wsData["RES_PKL"])
+        self.PER_ID = vInt(wsData["PER_ID"])
+        self.dateString = vString(wsData["date"])
+        self.date = vDate(wsData["date"])
+        self.year = vString(components.year)
+        self.chipsIn = vDouble(wsData["chipsIn"])
+        self.chipsOut = vDouble(wsData["chipsOut"])
+        self.factor = vDouble(wsData["factor"])
+        
+        // Status 1 = von Webservice
+        self.state = 1
+        
+        // Gewinn, Verhätlnis und Geld
+        self.chipsWin = self.chipsOut - self.chipsIn
+        self.moneyIn = (self.chipsIn/100.00) * self.factor
+        self.moneyOut = (self.chipsOut/100.00) * self.factor
+        self.moneyWin = self.moneyOut - self.moneyIn
+        
+        self.ratio = (self.chipsIn > 0) ? (self.chipsOut / self.chipsIn) * 100 : 0
+    }
     
     func linkedPerson(arrayPersons: [Persons]) -> Persons? {
         return arrayPersons.filter( { $0.id == self.PER_ID } ).first
     }
     
-    func addResultWS() {
+    func addResultWS() -> Bool {
         
         let dateFormat = "yyyyMMdd"
         let dateFormatCreated = "yyyyMMdd HH:mm:ss"
@@ -138,18 +138,48 @@ class Results: NSObject {
 
         if let json = getJSONData(link) {
             var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
-        } else {
-            println("ERROR: Keine Daten")
+            if error != nil {
+                println("ERROR: Fehler beim hinzufügen einer Person. \(error!.description)")
+            }
+            return (self.error == nil)
         }
+        return false
+    }
+    
+    func deleteResultWS() -> Bool {
         
-        if self.error == nil {
-            println("Kein Fehler")
-        } else {
-            println("Fehler")
+        let dateFormat = "yyyyMMdd HH:mm:ss"
+        
+        let link = "http://217.160.178.136/Service.asmx/updateResult?RES_ID=\(self.id)&RES_Deleted=\(vString(self.deleted, dateFormat: dateFormat))" +
+        "&RES_Changed=\(vString(self.changed, dateFormat: dateFormat))&RES_In=\(vDouble(self.chipsIn))&RES_Out=\(vDouble(self.chipsOut))"
+        
+        if let json = getJSONData(link) {
+            var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
+            if error != nil {
+                println("ERROR: Fehler beim löschen eines Resultates. \(error!.description)")
+            }
+            return (self.error == nil)
         }
+        return false
         
     }
     
+    func updateResultWS() -> Bool {
+        
+        let dateFormat = "yyyyMMdd HH:mm:ss"
+        
+        let link = "http://217.160.178.136/Service.asmx/updateResult?RES_ID=\(self.id)&RES_Deleted=" +
+        "&RES_Changed=\(vString(self.changed, dateFormat: dateFormat))&RES_In=\(vDouble(self.chipsIn))&RES_Out=\(vDouble(self.chipsOut))"
+        
+        if let json = getJSONData(link) {
+            var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
+            if error != nil {
+                println("ERROR: Fehler beim löschen eines Resultates. \(error!.description)")
+            }
+            return (self.error == nil)
+        }
+        return false
+    }
     
 }
 

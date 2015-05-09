@@ -18,6 +18,10 @@ class SettingsViewController: UIViewController {
         setupViews()
     }
     
+    override func supportedInterfaceOrientations() -> Int {
+        return Int(UIInterfaceOrientationMask.Portrait.rawValue)
+    }
+    
     override func shouldAutorotate() -> Bool {
         return false
     }
@@ -32,8 +36,10 @@ class SettingsViewController: UIViewController {
         
         // NavigationBar
         let navBar = UINavigationBar()
-        navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Zurück", lBFunc: "backButtonAction:")
+        navBar.defaultNavigationBar(title, viewController: self, lBTitle: "back", lBFunc: "backButtonAction:")
         self.view.addSubview(navBar)
+        
+        // TEMP Swicther
 
         
     }

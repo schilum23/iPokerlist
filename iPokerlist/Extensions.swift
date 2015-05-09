@@ -15,20 +15,38 @@ class Extensions: NSObject {
 // Default Navigation Bar
 public extension UINavigationBar {
     
-    func defaultNavigationBar(title: String, viewController: UIViewController, lBTitle: String, lBFunc: String, rBTitle: String?=nil, rBFunc: String?=nil) {
+    func defaultNavigationBar(title: String, viewController: UIViewController, lBTitle: String?=nil, lBFunc: String?=nil, rBTitle: String?=nil, rBFunc: String?=nil) {
         
         self.frame = CGRectMake(0, 20, viewController.view.frame.width, 44)
         self.backgroundColor = UIColor.whiteColor()
         
         var navItem = UINavigationItem()
         self.items = [navItem]
+
         
-        var lButton = UIBarButtonItem(title: lBTitle, style: UIBarButtonItemStyle.Plain, target: viewController, action: Selector(lBFunc))
-        navItem.leftBarButtonItem = lButton
+        if lBTitle != nil && lBFunc != nil {
+            var lButton = UIBarButtonItem()
+            if lBTitle == "XXXX" {
+               lButton = UIBarButtonItem(title: lBTitle!, style: UIBarButtonItemStyle.Plain, target: viewController, action: Selector(lBFunc!))
+            } else if let image = UIImage(named: lBTitle!) {
+                lButton = UIBarButtonItem(image: image, style: UIBarButtonItemStyle.Plain, target: viewController, action: NSSelectorFromString(lBFunc!))
+  
+            } else {
+                lButton = UIBarButtonItem(title: lBTitle!, style: UIBarButtonItemStyle.Plain, target: viewController, action: Selector(lBFunc!))
+            }
+            navItem.leftBarButtonItem = lButton
+        }
 
 
         if rBTitle != nil && rBFunc != nil {
-            var rButton = UIBarButtonItem(title: rBTitle!, style: UIBarButtonItemStyle.Plain, target: viewController, action: NSSelectorFromString(rBFunc!))
+            var rButton = UIBarButtonItem()
+            if rBTitle == "add" {
+                rButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: viewController, action: NSSelectorFromString(rBFunc!))
+            } else if let image = UIImage(named: rBTitle!) {
+                rButton = UIBarButtonItem(image: image, style: UIBarButtonItemStyle.Plain, target: viewController, action: NSSelectorFromString(rBFunc!))
+            } else {
+                rButton = UIBarButtonItem(title: rBTitle!, style: UIBarButtonItemStyle.Plain, target: viewController, action: NSSelectorFromString(rBFunc!))
+            }
             navItem.rightBarButtonItem = rButton
         }
         
