@@ -30,7 +30,6 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "rotated", name: UIDeviceOrientationDidChangeNotification, object: nil)
       
         super.viewDidLoad()
-        self.data = self.data.dataTemp!
         arrayScoresYear = data.arrayGroupedScores.first?.arrayScores
         year = vInt(data.arrayGroupedScores.first?.groupName)
         setupViews()
@@ -131,13 +130,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
 
             
         }
-        
-        // View for Stats
-//        let viewStats = UIView(frame: CGRect(x: 0.0, y: 0.0, width: scrollView.frame.width, height: scrollView.frame.height))
-//        viewStats.frame.origin.x += CGFloat(3) * self.view.frame.width
-//        viewStats.backgroundColor = UIColor.whiteColor()
-//        scrollView.addSubview(viewStats)
-//        
+
         self.view.addSubview(scrollView)
         
         var scrollToFrame = scrollView.frame
@@ -167,7 +160,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     // Switch Button
     func setupButtons() {
         
-        var buttonText = ["Gesamt", "Alle", "Ergebnisse", "Statistik"]
+        var buttonText = ["Gesamt", "Alle", "Ergebnisse"]
         
         for i in 0..<pages {
             
@@ -186,7 +179,6 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     
     // Switch Button Action
     func tapSegmentButtonAction(button:UIButton) {
-        
         var tempIndex = currentPageIndex
         if button.tag > tempIndex {
             for var i = tempIndex+1; i <= button.tag ; i++ {
@@ -344,6 +336,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
                 })
             }
         }
+        currentPageIndex = 2
         
     }
 
@@ -441,7 +434,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             (cell!.viewWithTag(3) as! UILabel).text = String(format: "%.2f", vDouble(oSCO.ratio))
 
             for i in 1...3 {
-                (cell!.viewWithTag(i) as! UILabel).font = oSCO.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+                (cell!.viewWithTag(i) as! UILabel).font = vBool(oSCO.linkedPerson(self.data.arrayPersons)?.me) ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
             }
 
         case 1:
@@ -478,55 +471,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
        
     }
     
-    // Cell bearbeitbar
-    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if tableView.tag != 2 {
-            return true
-        }
-        return true
-    }
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        
-    }
-    
-    // Action für Cell
-    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [AnyObject]?  {
-        
-       // if tableView.tag != 2 {
-         //   return nil
-       // }
-        
-        let oRES = data.arrayGroupedResults[indexPath.section][indexPath.row]
-        let alert = AlertViewController()
-        var deleteAction: UITableViewRowAction?
-        
-        //  löschen
-        if data.rightToChangeData {
-            deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.Default, title: "Löschen" , handler: { (action:UITableViewRowAction!, indexPath:NSIndexPath!) -> Void in
-                
-                alert.info(self, title: "Ergebnis löschen", text: "Möchten Sie das Ergbnis wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", buttonText: "Löschen",  cancelButtonText: "Abbrechen")
-                alert.addAction {
-                    self.data.deletePerson(indexPath.row)
-                    tableView.reloadData()
-                    self.tableViewScores.reloadData()
-                    self.tableViewScoresByYear.reloadData()
-                    alert.closeView(false)
-                }
-                tableView.editing = false
-                return
-            })
-        }
-        
-        if deleteAction == nil {
-            return nil
-        } else {
-            return [deleteAction!]
-        }
-        
-    }
-
-    
-    // Zeilen Klick - Spieler Statistik aurufen
+    // Zeilen Klick - Spieler Statistik aurufen / Ergebnis bearbeiten
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         var oSCO: Scores?
@@ -538,19 +483,41 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         case 2:
             if data.rightToChangeData {
                 let oRES = data.arrayGroupedResults[indexPath.section][indexPath.row]
+                let valueIn = String(format: "%.2f", vDouble(oRES.chipsIn))
+                let valueOut = String(format: "%.2f", vDouble(oRES.chipsOut))
                 
                 let alert = AlertViewController()
-                alert.info(self, title: "Resultat bearbeiten", text: "Einzahlung/Auszahlung bearbeiten", placeholder: "Ein", buttonText: "Speichern",  cancelButtonText: "Abbrechen")
+                
+                alert.info(self, title: "Resultat bearbeiten", text: "Ein/Auszahlung bearbeiten", placeholder: "Ein: \(valueIn)", placeholder2: "Aus: \(valueOut)", switcher: true, buttonText: "Speichern",  cancelButtonText: "Abbrechen")
+                alert.textField1?.keyboardType = .DecimalPad
+                alert.textField2?.keyboardType = .DecimalPad
+                alert.textField2?.becomeFirstResponder()
+                alert.textField1?.becomeFirstResponder()
+         
                 alert.addAction {
                     
                     let chipsIn = alert.textField1.text
+                    let chipsOut = alert.textField2.text
                     
-                    if vDouble(chipsIn) == 0 {
-                        alert.errorLabel.text = "* Ein Einzahlungsbetrag muss angegeben werden!"
+                    if alert.switcher != nil && alert.switcher!.on {
+                        let alertSure = AlertViewController()
+                        alertSure.info(self, title: "Ergebnis löschen", text: "Möchten Sie das Ergbnis wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", buttonText: "Löschen",  cancelButtonText: "Abbrechen")
+                        alertSure.addAction {
+                            self.data.deleteResult(oRES)
+                            tableView.reloadData()
+                            self.tableViewScores.reloadData()
+                            self.tableViewScoresByYear.reloadData()
+                            alert.closeView(false)
+                            alertSure.closeView(false)
+                        }
+                    } else if vDouble(chipsIn) == 0 {
+                        alert.errorLabel.text = "* Kein Einzahlungsbetrag angegeben!"
                     }
                     else {
-                        self.data.updateResult(oRES, chipsIn: chipsIn, chipsOut: chipsIn)
+                        self.data.updateResult(oRES, chipsIn: chipsIn, chipsOut: chipsOut)
                         tableView.reloadData()
+                        self.tableViewScores.reloadData()
+                        self.tableViewScoresByYear.reloadData()
                         alert.closeView(false)
                     }
                 }
@@ -611,7 +578,11 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     }
     
     func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView) {
-        currentPageIndex = Int(scrollView.contentOffset.x / scrollView.frame.width)
+        if lastY == 0 {
+            currentPageIndex = Int(scrollView.contentOffset.x / scrollView.frame.width)
+        } else {
+            lastY = 0
+        }
     }
     
     func scrollViewDidEndDecelerating(scrollView: UIScrollView) {

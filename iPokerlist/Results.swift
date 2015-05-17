@@ -18,7 +18,6 @@ class Results: NSObject {
     var deleted: NSDate?
     var PKL_ID: Int = 1
     var PER_ID: Int = 1
-    var state: Int = 0
     var date: NSDate!
     var year: String = ""
     var dateString: String = ""
@@ -44,7 +43,6 @@ class Results: NSObject {
         self.deleted = aDecoder.decodeObjectForKey("deleted") as? NSDate
         self.PKL_ID = aDecoder.decodeObjectForKey("PKL_ID") as! Int
         self.PER_ID = aDecoder.decodeObjectForKey("PER_ID") as! Int
-        self.state = aDecoder.decodeObjectForKey("state") as! Int
         self.date = aDecoder.decodeObjectForKey("date") as! NSDate
         self.year = aDecoder.decodeObjectForKey("year") as! String
         self.dateString = aDecoder.decodeObjectForKey("dateString") as! String
@@ -66,7 +64,6 @@ class Results: NSObject {
         aCoder.encodeObject(deleted, forKey: "deleted")
         aCoder.encodeObject(PKL_ID, forKey: "PKL_ID")
         aCoder.encodeObject(PER_ID, forKey: "PER_ID")
-        aCoder.encodeObject(state, forKey: "state")
         aCoder.encodeObject(date, forKey: "date")
         aCoder.encodeObject(year, forKey: "year")
         aCoder.encodeObject(dateString, forKey: "dateString")
@@ -112,8 +109,11 @@ class Results: NSObject {
         self.chipsOut = vDouble(wsData["chipsOut"])
         self.factor = vDouble(wsData["factor"])
         
-        // Status 1 = von Webservice
-        self.state = 1
+        calculateData()
+        
+    }
+    
+    func calculateData() {
         
         // Gewinn, Verhätlnis und Geld
         self.chipsWin = self.chipsOut - self.chipsIn
@@ -128,7 +128,7 @@ class Results: NSObject {
         return arrayPersons.filter( { $0.id == self.PER_ID } ).first
     }
     
-    func addResultWS() -> Bool {
+    func addResultWS() -> Int {
         
         let dateFormat = "yyyyMMdd"
         let dateFormatCreated = "yyyyMMdd HH:mm:ss"
@@ -141,9 +141,9 @@ class Results: NSObject {
             if error != nil {
                 println("ERROR: Fehler beim hinzufügen einer Person. \(error!.description)")
             }
-            return (self.error == nil)
+            return vInt(tempError[0]["id"])
         }
-        return false
+        return 0
     }
     
     func deleteResultWS() -> Bool {

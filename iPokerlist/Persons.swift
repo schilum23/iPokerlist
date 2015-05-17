@@ -15,7 +15,6 @@ class Persons: NSObject {
     var created: NSDate = NSDate()
     var changed: NSDate = NSDate()
     var deleted: NSDate?
-    var state: Int = 0
     var PKL_ID: Int = 1
     var name: String = ""
     var defaultVisible: Bool = true
@@ -34,7 +33,6 @@ class Persons: NSObject {
         self.created = aDecoder.decodeObjectForKey("created") as! NSDate
         self.changed = aDecoder.decodeObjectForKey("changed") as! NSDate
         self.deleted = aDecoder.decodeObjectForKey("deleted") as? NSDate
-        self.state = aDecoder.decodeObjectForKey("state") as! Int
         self.PKL_ID = aDecoder.decodeObjectForKey("PKL_ID") as! Int
         self.name = aDecoder.decodeObjectForKey("name") as! String
         self.defaultVisible = aDecoder.decodeObjectForKey("defaultVisible") as! Bool
@@ -48,7 +46,6 @@ class Persons: NSObject {
         aCoder.encodeObject(created, forKey: "created")
         aCoder.encodeObject(changed, forKey: "changed")
         aCoder.encodeObject(deleted, forKey: "deleted")
-        aCoder.encodeObject(state, forKey: "state")
         aCoder.encodeObject(PKL_ID, forKey: "PKL_ID")
         aCoder.encodeObject(name, forKey: "name")
         aCoder.encodeObject(defaultVisible, forKey: "defaultVisible")
@@ -64,13 +61,11 @@ class Persons: NSObject {
         self.id = vInt(wsData["id"])
         self.created = vDate(wsData["created"])
         self.changed = vDate(wsData["changed"])
-        self.deleted = vDate(wsData["Deleted"])
+        self.deleted = vDate(wsData["deleted"])
         self.PKL_ID = vInt(wsData["PKL_ID"])
         self.name = vString(wsData["name"])
         self.defaultVisible = vBool(wsData["defaultVisible"])
-        
-        // Status 1 = von Webservice
-        self.state = 1
+
     }
     
     // Init mit Name
@@ -85,7 +80,7 @@ class Persons: NSObject {
     }
 
     // Spieler hinzufügen
-    func addPersonWS() -> Bool {
+    func addPersonWS() -> Int {
         
         let link = "http://217.160.178.136/Service.asmx/addPerson?PER_Name=\(self.name)&PER_PKL=\(self.PKL_ID)"
         
@@ -95,9 +90,10 @@ class Persons: NSObject {
             if error != nil {
                 println("ERROR: Fehler beim hinzufügen einer Person. \(error!.description)")
             }
-            return (self.error == nil)
+            
+            return vInt(tempError[0]["id"])
         }
-        return false
+        return 0
     }
     
     // Spieler löschen
@@ -110,7 +106,7 @@ class Persons: NSObject {
             var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
             
             if error != nil {
-                println("ERROR: Fehler beim hinzufügen einer Person. \(error!.description)")
+                println("ERROR: Fehler beim löschen einer Person. \(error!.description)")
             }
             return (self.error == nil)
         }
@@ -128,7 +124,7 @@ class Persons: NSObject {
             var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
             
             if error != nil {
-                println("ERROR: Fehler beim hinzufügen einer Person. \(error!.description)")
+                println("ERROR: Fehler beim updaten einer Person. \(error!.description)")
             }
             return (self.error == nil)
         }

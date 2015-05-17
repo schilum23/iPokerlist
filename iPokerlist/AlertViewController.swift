@@ -21,6 +21,8 @@ class AlertViewController: UIViewController {
     var textView:UITextView!
     var textField1:UITextField!
     var textField2:UITextField!
+    var switcher:UISwitch!
+    var switchLabel:UILabel!
     var errorLabel:UILabel!
     
     var rootViewController:UIViewController!
@@ -190,12 +192,35 @@ class AlertViewController: UIViewController {
             yPos += self.padding
             self.textField1.frame = CGRect(x: self.padding, y: yPos, width: self.alertWidth - (self.padding*2), height: 30)
             self.textField1.layer.cornerRadius = 0
+            
+            yPos += (self.textField2 == nil) ? 30 : 15
+            
+            if self.textField2 == nil {
+                self.errorLabel.frame = CGRect(x: self.padding, y: yPos, width: self.alertWidth - (self.padding*2), height: 20)
+                yPos += ceil(self.errorLabel.frame.height)
+            }
+        }
+        
+        // Text fields
+        if self.textField2 != nil {
+            yPos += self.padding
+            self.textField2.frame = CGRect(x: self.padding, y: yPos, width: self.alertWidth - (self.padding*2), height: 30)
+            self.textField2.layer.cornerRadius = 0
             yPos += 30
             
             
             self.errorLabel.frame = CGRect(x: self.padding, y: yPos, width: self.alertWidth - (self.padding*2), height: 20)
             yPos += ceil(self.errorLabel.frame.height)
         }
+        
+        // Switcher
+        if self.switcher != nil {
+            yPos += self.padding
+            self.switcher.frame = CGRect(x: self.padding, y: yPos, width: 0, height: 0)
+            self.switchLabel.frame = CGRect(x: CGRectGetMaxX(self.switcher.frame) + self.padding, y: yPos, width: 100, height: self.switcher.frame.height)
+            yPos += ceil(self.switcher.frame.height)
+        }
+
         
         // position the buttons
         yPos += self.padding
@@ -243,8 +268,8 @@ class AlertViewController: UIViewController {
     
     
     
-    func info(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, buttonText: String?=nil, cancelButtonText: String?=nil) -> JSSAlertViewResponder {
-        var alertview = self.show(viewController, title: title, text: text, placeholder: placeholder, buttonText: buttonText, cancelButtonText: cancelButtonText, color: UIColorFromHex(0x3498db, alpha: 1))
+    func info(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, placeholder2: String?=nil, switcher: Bool?=false, buttonText: String?=nil, cancelButtonText: String?=nil) -> JSSAlertViewResponder {
+        var alertview = self.show(viewController, title: title, text: text, placeholder: placeholder, placeholder2: placeholder2, switcher: switcher, buttonText: buttonText, cancelButtonText: cancelButtonText, color: UIColorFromHex(0x3498db, alpha: 1))
         alertview.setTextTheme(.Light)
         return alertview
     }
@@ -263,7 +288,7 @@ class AlertViewController: UIViewController {
         return alertview
     }
     
-    func show(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, buttonText: String?=nil, cancelButtonText: String?=nil, color: UIColor?=nil, iconImage: UIImage?=nil) -> JSSAlertViewResponder {
+    func show(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, placeholder2: String?=nil, switcher: Bool?=false, buttonText: String?=nil, cancelButtonText: String?=nil, color: UIColor?=nil, iconImage: UIImage?=nil) -> JSSAlertViewResponder {
         
         self.rootViewController = viewController
         self.rootViewController.addChildViewController(self)
@@ -337,6 +362,31 @@ class AlertViewController: UIViewController {
             textField1.becomeFirstResponder()
 
             
+            if placeholder2 == nil {
+                self.errorLabel = UILabel()
+                errorLabel.textColor = UIColor.redColor()
+                errorLabel.numberOfLines = 0
+                errorLabel.textAlignment = .Left
+                errorLabel.font = UIFont(name: self.titleFont, size: 14)
+                errorLabel.text = ""
+                self.containerView.addSubview(errorLabel)
+            }
+        }
+        
+        // Add text field 2
+        if let placeholder2 = placeholder2 {
+            self.textField2 = UITextField()
+            textField2.borderStyle = UITextBorderStyle.Line
+            textField2.font = UIFont(name: textFont, size: 14)
+            textField2.autocapitalizationType = UITextAutocapitalizationType.Words
+            textField2.clearButtonMode = UITextFieldViewMode.WhileEditing
+            textField2.layer.masksToBounds = true
+            textField2.layer.borderWidth = 1.0
+            textField2.placeholder = placeholder2
+            self.containerView.addSubview(textField2)
+            textField1.becomeFirstResponder()
+            
+            
             
             self.errorLabel = UILabel()
             errorLabel.textColor = UIColor.redColor()
@@ -345,6 +395,16 @@ class AlertViewController: UIViewController {
             errorLabel.font = UIFont(name: self.titleFont, size: 14)
             errorLabel.text = ""
             self.containerView.addSubview(errorLabel)
+        }
+        
+        // Add switcher
+        if switcher != nil && switcher! == true {
+            self.switcher = UISwitch()
+            self.containerView.addSubview(self.switcher)
+            self.switchLabel = UILabel()
+            self.switchLabel.text = "Löschen"
+            self.switchLabel.textColor = UIColor.whiteColor()
+            self.containerView.addSubview(switchLabel)
         }
         
         // Button

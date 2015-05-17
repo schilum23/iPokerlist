@@ -17,9 +17,12 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
     var bottomView = UIView()
     let navBar = UINavigationBar()
     var iDatePicker = iUIDatePicker()
+    var keyboardSize: CGFloat = 44
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
         setupViews()
     }
     
@@ -39,6 +42,23 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         }
     }
     
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self);
+    }
+    
+    func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue() {
+            scrollView.frame.size.height = self.view.frame.height - CGRectGetMaxY(viewHeader.frame) - keyboardSize.height
+            self.keyboardSize = keyboardSize.height
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue() {
+            scrollView.frame.size.height = self.view.frame.height - CGRectGetMaxY(viewHeader.frame) - 44
+            self.keyboardSize = 44
+        }
+    }
     
     // MARK: - Help Functions
     // Views aufbauen
@@ -164,15 +184,12 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         keyboardToolbar.backgroundColor = UIColor.whiteColor()
         
         let nextBarButton = UIBarButtonItem(title: "Weiter", style: .Plain, target: self, action: Selector("goToTextField:"))
-        //nextBarButton.width = self.view.frame.width / 3
         nextBarButton.tag = 1
         
         let previousBarButton = UIBarButtonItem(title: "Zurück", style: .Plain, target: self, action: Selector("goToTextField:"))
-       // previousBarButton.width = self.view.frame.width / 3
         previousBarButton.tag = -1
         
         let doneBarButton = UIBarButtonItem(title: "Fertig", style: .Plain, target: self, action: Selector("doneClicked:"))
-      //  doneBarButton.width = self.view.frame.width / 3
         
         let flex1 = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.FlexibleSpace, target: nil, action: nil)
   
@@ -246,7 +263,7 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         viewHeader.frame.origin.y = CGRectGetMaxY(navBar.frame) + height
         
         scrollView.frame.origin.y = CGRectGetMaxY(viewHeader.frame)
-        scrollView.frame.size.height = self.view.frame.height - CGRectGetMaxY(viewHeader.frame) - 44
+        scrollView.frame.size.height = self.view.frame.height - CGRectGetMaxY(viewHeader.frame) - self.keyboardSize
 
     }
     
@@ -289,9 +306,11 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         
         if (nextResponder != nil) {
             nextResponder!.becomeFirstResponder()
-        } else if (actResponder != nil) {
-            //actResponder!.resignFirstResponder()
+        } else  {
             self.view.endEditing(true)
+            if scrollView.contentSize.height < (scrollView.contentOffset.y + scrollView.frame.size.height) {
+                scrollView.setContentOffset(CGPointMake(0, scrollView.contentSize.height - scrollView.frame.size.height), animated: true)
+            }
         }
         
     }

@@ -68,8 +68,7 @@ public func vDouble(value: AnyObject?) -> Double {
 public func vDate(value: AnyObject?) -> NSDate {
     
     let dateFormatter = NSDateFormatter()
-    dateFormatter.dateFormat = "dd.MM.yyyy"
-    
+    dateFormatter.dateFormat = "dd.MM.yyyy HH:mm:ss"
     
     if let objectValue: AnyObject = value {
         
@@ -80,6 +79,18 @@ public func vDate(value: AnyObject?) -> NSDate {
         if let returnValue = dateFormatter.dateFromString("\(objectValue)") {
             return returnValue
         }
+        
+        dateFormatter.dateFormat = "dd.MM.yyyy HH:mm"
+        if let returnValue = dateFormatter.dateFromString("\(objectValue)") {
+            return returnValue
+        }
+        
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        if let returnValue = dateFormatter.dateFromString("\(objectValue)") {
+            return returnValue
+        }
+        
+      
     }
     
     return NSDate(timeIntervalSince1970: 0)

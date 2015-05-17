@@ -39,8 +39,21 @@ class SettingsViewController: UIViewController {
         navBar.defaultNavigationBar(title, viewController: self, lBTitle: "back", lBFunc: "backButtonAction:")
         self.view.addSubview(navBar)
         
-        // TEMP Swicther
-
+        // TEMP Switcher
+        let switcher = UISwitch(frame: CGRectMake(10, CGRectGetMaxY(navBar.frame) + 10, 0, 0))
+        switcher.addTarget(self, action: "stateChanged:", forControlEvents: .ValueChanged)
+        switcher.on = self.data.rightToChangeData
+        self.view.addSubview(switcher)
+        
+    }
+    
+    func stateChanged(switcher: UISwitch) {
+        //self.data.rightToChangeData = switcher.on
+        self.data.changed = true
+        
+        self.data.getPersonUpdatesFromWS()
+        self.data.lastUpdate = NSDate()
+        self.data.getResultsUpdatesFromWS()
         
     }
 

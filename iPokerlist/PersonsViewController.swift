@@ -74,7 +74,7 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
             }
             else {
-               
+                self.data.addPerson(name)
                 self.tableView.reloadData()
                 alert.closeView(false)
             }
@@ -120,26 +120,28 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
     // Cell Klick - Spieler bearbeiten
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        let oPER = data.arrayPersons[indexPath.row]
+        if data.rightToChangeData {
+            let oPER = data.arrayPersons[indexPath.row]
         
-        let alert = AlertViewController()
-        alert.info(self, title: "Spieler bearbeiten", text: "Spieler \(oPER.name) bearbeiten", placeholder: "Name", buttonText: "Speichern",  cancelButtonText: "Abbrechen")
-        alert.addAction {
+            let alert = AlertViewController()
+            alert.info(self, title: "Spieler bearbeiten", text: "Spieler \(oPER.name) bearbeiten", placeholder: "Name", buttonText: "Speichern",  cancelButtonText: "Abbrechen")
+            alert.addAction {
             
-            let name = alert.textField1.text
+                let name = alert.textField1.text
             
-            if name == "" {
-                alert.errorLabel.text = "* Ein Name muss angeben werden!"
-            } else if let oPER = self.data.arrayPersons.filter( { $0.name == name } ).first {
-                alert.errorLabel.text = "* Der Name \(name) ist bereits vorhanden!"
-            }
-            else if count(name) > 50 {
-                alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
-            }
-            else {
-                self.data.updatePerson(indexPath.row, name: name)
-                self.tableView.reloadData()
-                alert.closeView(false)
+                if name == "" {
+                    alert.errorLabel.text = "* Ein Name muss angeben werden!"
+                } else if let oPER = self.data.arrayPersons.filter( { $0.name == name } ).first {
+                    alert.errorLabel.text = "* Der Name \(name) ist bereits vorhanden!"
+                }
+                else if count(name) > 50 {
+                    alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
+                }
+                else {
+                    self.data.updatePerson(indexPath.row, name: name)
+                    self.tableView.reloadData()
+                    alert.closeView(false)
+                }
             }
         }
     }
