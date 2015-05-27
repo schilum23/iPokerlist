@@ -24,6 +24,7 @@ class AlertViewController: UIViewController {
     var switcher:UISwitch!
     var switchLabel:UILabel!
     var errorLabel:UILabel!
+    var minusPos:Bool = false
     
     var rootViewController:UIViewController!
     var iconImage:UIImage!
@@ -262,14 +263,15 @@ class AlertViewController: UIViewController {
         self.alertBackgroundView.frame = CGRect(x: 0, y: 0, width: self.alertWidth, height: yPos)
         
         // size the container that holds everything together
-        var yPosMinus: CGFloat = (textField1 != nil) ? 100 : 0
+        var yPosMinus: CGFloat = (textField1 != nil || vBool(minusPos)) ? 100 : 0
         self.containerView.frame = CGRect(x: (self.viewWidth!-self.alertWidth)/2, y: (self.viewHeight! - yPos)/2 - yPosMinus, width: self.alertWidth, height: yPos)
+
     }
     
     
     
-    func info(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, placeholder2: String?=nil, switcher: Bool?=false, buttonText: String?=nil, cancelButtonText: String?=nil) -> JSSAlertViewResponder {
-        var alertview = self.show(viewController, title: title, text: text, placeholder: placeholder, placeholder2: placeholder2, switcher: switcher, buttonText: buttonText, cancelButtonText: cancelButtonText, color: UIColorFromHex(0x3498db, alpha: 1))
+    func info(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, placeholder2: String?=nil, switcher: Bool?=false, minusPos: Bool?=false, buttonText: String?=nil, cancelButtonText: String?=nil) -> JSSAlertViewResponder {
+        var alertview = self.show(viewController, title: title, text: text, placeholder: placeholder, placeholder2: placeholder2, switcher: switcher, minusPos: minusPos, buttonText: buttonText, cancelButtonText: cancelButtonText, color: UIColorFromHex(0x3498db, alpha: 1))
         alertview.setTextTheme(.Light)
         return alertview
     }
@@ -288,11 +290,12 @@ class AlertViewController: UIViewController {
         return alertview
     }
     
-    func show(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, placeholder2: String?=nil, switcher: Bool?=false, buttonText: String?=nil, cancelButtonText: String?=nil, color: UIColor?=nil, iconImage: UIImage?=nil) -> JSSAlertViewResponder {
+    func show(viewController: UIViewController, title: String, text: String?=nil, placeholder: String?=nil, placeholder2: String?=nil, switcher: Bool?=false, minusPos: Bool?=false, buttonText: String?=nil, cancelButtonText: String?=nil, color: UIColor?=nil, iconImage: UIImage?=nil) -> JSSAlertViewResponder {
         
         self.rootViewController = viewController
         self.rootViewController.addChildViewController(self)
         self.rootViewController.view.addSubview(view)
+        self.minusPos = vBool(minusPos)
         
         self.view.backgroundColor = UIColorFromHex(0x000000, alpha: 0.7)
         

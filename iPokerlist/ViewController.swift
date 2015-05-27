@@ -59,17 +59,19 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
         self.view.removeSubViews()
         
         self.view.backgroundColor = UIColor.whiteColor()
-        var title = "Pokerliste Family"
+        var title = self.data.PKL_Name
         
         // NavigationBar
         let navBar = UINavigationBar()
         
-        if data.rightToChangeData {
+        if data.rightToChangeData && self.data.PKL_ID != 0 {
             navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Menü", lBFunc: "settingsButtonAction:", rBTitle: "add", rBFunc: "addButtonAction:")
 
-        } else {
+        } else if self.data.PKL_ID != 0 {
             navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Menü", lBFunc: "settingsButtonAction:", rBTitle: "person", rBFunc: "personsButtonAction:")
- 
+        }
+        else {
+            navBar.defaultNavigationBar(title, viewController: self, lBTitle: "Menü", lBFunc: "settingsButtonAction:")
         }
         self.view.addSubview(navBar)
         
@@ -116,10 +118,13 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
                 picker = UIPickerView(frame: CGRectMake(0, scrollView.frame.height - 161, frame.width, 0))
                 
                 picker.frame.origin.x += CGFloat(i) * self.view.frame.width
-                picker.backgroundColor = UIColor.lightGrayColor()
+                picker.backgroundColor = UIColorFromHex(0x3498db, alpha: 1)
                 picker.dataSource = self
                 picker.delegate = self
-                scrollView.addSubview(picker)
+                
+                if self.data.PKL_ID != 0 {
+                    scrollView.addSubview(picker)
+                }
             }
             
             if (i == 0) {
@@ -218,8 +223,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
     // Switch Selector
     func setupSelector() {
         selectionBar = UIView(frame: CGRectMake(0, 40, (toolBar.frame.width / CGFloat(pages)), 4))
-        selectionBar.backgroundColor = UIColor.greenColor()
-        selectionBar.alpha = 0.8
+        selectionBar.backgroundColor =  UIColorFromHex(0x3498db, alpha: 1)
         toolBar.addSubview(selectionBar)
         
     }
@@ -305,7 +309,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             btnHeader.setTitle(oRES.dateString, forState:UIControlState.Normal)
             btnHeader.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             btnHeader.contentEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 0);
-            btnHeader.backgroundColor = UIColor.lightGrayColor()
+            btnHeader.backgroundColor = UIColorFromHex(0x3498db, alpha: 0.5)
             return btnHeader
 
         default:
@@ -412,6 +416,7 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
                 cell!.addSubview(labelPos)
                 cell!.addSubview(labelName)
                 cell!.addSubview(labelRatio)
+              
                 
             case 2:
                 
@@ -436,6 +441,13 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             for i in 1...3 {
                 (cell!.viewWithTag(i) as! UILabel).font = vBool(oSCO.linkedPerson(self.data.arrayPersons)?.me) ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
             }
+            
+            
+            if indexPath.row % 2 == 0 {
+                cell!.backgroundColor = UIColorFromHex(0x3498db, alpha: 0.5)
+            } else {
+                cell!.backgroundColor = UIColor.whiteColor()
+            }
 
         case 1:
             
@@ -447,6 +459,13 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             
             for i in 1...3 {
                 (cell!.viewWithTag(i) as! UILabel).font = oSCO!.linkedPerson(self.data.arrayPersons) != nil && oSCO!.linkedPerson(self.data.arrayPersons)!.me ? .boldSystemFontOfSize(16.0) : .systemFontOfSize(16.0)
+            }
+            
+            
+            if indexPath.row % 2 == 0 {
+                cell!.backgroundColor = UIColorFromHex(0x3498db, alpha: 0.5)
+            } else {
+                cell!.backgroundColor = UIColor.whiteColor()
             }
             
         case 2:
@@ -501,24 +520,37 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
                     
                     if alert.switcher != nil && alert.switcher!.on {
                         let alertSure = AlertViewController()
-                        alertSure.info(self, title: "Ergebnis löschen", text: "Möchten Sie das Ergbnis wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", buttonText: "Löschen",  cancelButtonText: "Abbrechen")
+                        alertSure.info(self, title: "Ergebnis löschen", text: "Möchten Sie das Ergbnis wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", minusPos: true, buttonText: "Löschen",  cancelButtonText: "Abbrechen")
                         alertSure.addAction {
-                            self.data.deleteResult(oRES)
+                            if self.data.deleteResult(oRES) {
                             tableView.reloadData()
                             self.tableViewScores.reloadData()
+                            if self.data.arrayGroupedScores.count > 0 {
+                                self.arrayScoresYear = self.data.arrayGroupedScores[0].arrayScores
+                            }
                             self.tableViewScoresByYear.reloadData()
                             alert.closeView(false)
                             alertSure.closeView(false)
+                            } else {
+                                alertSure.closeView(false)
+                                var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: true, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
+                            }
                         }
                     } else if vDouble(chipsIn) == 0 {
                         alert.errorLabel.text = "* Kein Einzahlungsbetrag angegeben!"
                     }
                     else {
-                        self.data.updateResult(oRES, chipsIn: chipsIn, chipsOut: chipsOut)
+                        if self.data.updateResult(oRES, chipsIn: chipsIn, chipsOut: chipsOut) {
                         tableView.reloadData()
                         self.tableViewScores.reloadData()
+                        if self.data.arrayGroupedScores.count > 0 {
+                            self.arrayScoresYear = self.data.arrayGroupedScores[0].arrayScores
+                        }
                         self.tableViewScoresByYear.reloadData()
                         alert.closeView(false)
+                        } else {
+                            var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: true, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
+                        }
                     }
                 }
 

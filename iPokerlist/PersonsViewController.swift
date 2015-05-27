@@ -12,6 +12,7 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var data: Data!
     var tableView = UITableView()
+    var customIcon = UIImage(named: "lightbulb")
     
     // MARK: - Init / Coder
     override func viewDidLoad() {
@@ -74,9 +75,13 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
             }
             else {
-                self.data.addPerson(name)
+                if self.data.addPerson(name) {
                 self.tableView.reloadData()
                 alert.closeView(false)
+                } else {
+                    alert.textField1.endEditing(false)
+                    var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: true, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
+                }
             }
         }
     }
@@ -138,9 +143,13 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
                     alert.errorLabel.text = "* Es sind maximal 50 Zeichen erlaubt!"
                 }
                 else {
-                    self.data.updatePerson(indexPath.row, name: name)
-                    self.tableView.reloadData()
-                    alert.closeView(false)
+                    if self.data.updatePerson(indexPath.row, name: name) {
+                        self.tableView.reloadData()
+                        alert.closeView(false)
+                    } else {
+                        alert.textField1.endEditing(false)
+                        var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: true, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
+                    }
                 }
             }
         }
@@ -167,9 +176,12 @@ class PersonsViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             alert.info(self, title: "Spieler löschen", text: "Möchten Sie den Spieler \(oPER.name) wirklich löschen? Das Löschen kann nicht rückgängig gemacht werden!", buttonText: "Löschen",  cancelButtonText: "Abbrechen")
             alert.addAction {
-                    self.data.deletePerson(indexPath.row)
-                    self.tableView.reloadData()
-                    alert.closeView(false)
+                    if self.data.deletePerson(indexPath.row) {
+                        self.tableView.reloadData()
+                        alert.closeView(false)
+                    } else {
+                        var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: false, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
+                    }
                 }
                 self.tableView.editing = false
                 return

@@ -120,7 +120,6 @@ class TableScoresViewController: UIViewController, UITableViewDataSource, UITabl
         view.addSubview(labelIn)
         view.addSubview(labelOut)
         view.addSubview(labelGames)
-
         
         return view
         
@@ -184,9 +183,15 @@ class TableScoresViewController: UIViewController, UITableViewDataSource, UITabl
             cell!.addSubview(labelIn)
             cell!.addSubview(labelOut)
             cell!.addSubview(labelGames)
+            
+            if indexPath.row % 2 == 0 {
+                cell!.backgroundColor = UIColorFromHex(0x3498db, alpha: 0.5)
+            } else {
+                cell!.backgroundColor = UIColor.whiteColor()
+            }
 
         }
-            
+        
         let oSCO = arrayScores![indexPath.row]
             
         (cell!.viewWithTag(1) as! UILabel).text = vString(oSCO.position)

@@ -12,7 +12,6 @@
 		2C1E4A161AC34FAE00119261 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1E4A151AC34FAE00119261 /* SettingsViewController.swift */; };
 		2C1E4A181AC3509900119261 /* PersonsStatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1E4A171AC3509900119261 /* PersonsStatsViewController.swift */; };
 		2C5493B41AB0CA95005F0D19 /* ScoreGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */; };
-		2C62F54C1AD96046003594D0 /* Pokerlists.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C62F54B1AD96046003594D0 /* Pokerlists.swift */; };
 		2CA725F71AEBEDC5007EA8DE /* JawBone.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CA725F61AEBEDC5007EA8DE /* JawBone.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2CA725FD1AEBEDC6007EA8DE /* JawBone.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA725F21AEBEDC5007EA8DE /* JawBone.framework */; };
 		2CA726061AEBEDC6007EA8DE /* JawBoneTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CA726051AEBEDC6007EA8DE /* JawBoneTests.m */; };
@@ -96,7 +95,6 @@
 		2C1E4A151AC34FAE00119261 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		2C1E4A171AC3509900119261 /* PersonsStatsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersonsStatsViewController.swift; sourceTree = "<group>"; };
 		2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScoreGroups.swift; sourceTree = "<group>"; };
-		2C62F54B1AD96046003594D0 /* Pokerlists.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pokerlists.swift; sourceTree = "<group>"; };
 		2CA725F21AEBEDC5007EA8DE /* JawBone.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JawBone.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CA725F51AEBEDC5007EA8DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2CA725F61AEBEDC5007EA8DE /* JawBone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JawBone.h; sourceTree = "<group>"; };
@@ -292,7 +290,6 @@
 				2CCE2A051AAC9DB000FD0A57 /* Data.swift */,
 				2CCE2A071AAC9DBF00FD0A57 /* Persons.swift */,
 				2CCE2A091AACA26800FD0A57 /* Results.swift */,
-				2C62F54B1AD96046003594D0 /* Pokerlists.swift */,
 				2CC387C21AAF6B610007B889 /* Scores.swift */,
 				2C5493B31AB0CA95005F0D19 /* ScoreGroups.swift */,
 			);
@@ -517,7 +514,6 @@
 				2C5493B41AB0CA95005F0D19 /* ScoreGroups.swift in Sources */,
 				2CAD85351AAE27DD009EDA67 /* PersonsViewController.swift in Sources */,
 				2CC387C31AAF6B610007B889 /* Scores.swift in Sources */,
-				2C62F54C1AD96046003594D0 /* Pokerlists.swift in Sources */,
 				2CAD85371AAE27FA009EDA67 /* AlertViewController.swift in Sources */,
 				2CCE2A0C1AACC16700FD0A57 /* ResultsViewController.swift in Sources */,
 				2C1E4A161AC34FAE00119261 /* SettingsViewController.swift in Sources */,

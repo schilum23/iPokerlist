@@ -12,7 +12,7 @@ import CoreData
 let link = "http://217.160.178.136/Service.asmx/"
 let wsLinkPersons = "getPersons"
 let wsLinkResults = "pokerlisteResults"
-let wsLists = ""
+let wsList = "getPKL"
 
 class Data: NSObject {
     
@@ -23,7 +23,9 @@ class Data: NSObject {
     var arrayScores = [Scores]()
     var arrayGroupedScores = [ScoreGroups]()
     var changed = false
-    var PKL_ID = 1 //NSUserDefaults.standardUserDefaults().integerForKey("PKL_ID")
+    var PKL_Name = ""
+    var PKL_Link = ""
+    var PKL_ID = 0
     var rightToChangeData = true
     var error: NSError?
     var lastUpdate: NSDate?
@@ -47,6 +49,8 @@ class Data: NSObject {
         self.arrayGroupedScores = aDecoder.decodeObjectForKey("arrayGroupedScores") as! [ScoreGroups]
         self.changed = aDecoder.decodeObjectForKey("changed") as! Bool
         self.PKL_ID = aDecoder.decodeObjectForKey("PKL_ID") as! Int
+        self.PKL_Name = aDecoder.decodeObjectForKey("PKL_Name") as! String
+        self.PKL_Link = aDecoder.decodeObjectForKey("PKL_Link") as! String
         self.rightToChangeData = aDecoder.decodeObjectForKey("rightToChangeData") as! Bool
         self.lastUpdate = aDecoder.decodeObjectForKey("lastUpdate") as? NSDate
     }
@@ -59,6 +63,8 @@ class Data: NSObject {
         aCoder.encodeObject(arrayGroupedScores, forKey: "arrayGroupedScores")
         aCoder.encodeObject(changed, forKey: "changed")
         aCoder.encodeObject(PKL_ID, forKey: "PKL_ID")
+        aCoder.encodeObject(PKL_Name, forKey: "PKL_Name")
+        aCoder.encodeObject(PKL_Link, forKey: "PKL_Link")
         aCoder.encodeObject(rightToChangeData, forKey: "rightToChangeData")
         aCoder.encodeObject(lastUpdate, forKey: "lastUpdate")
     }
@@ -94,8 +100,6 @@ class Data: NSObject {
         let entetyDescription:NSEntityDescription = NSEntityDescription.entityForName("CDData", inManagedObjectContext: managedContext)!
         
         fetchRequest.entity = entetyDescription
-        fetchRequest.predicate = NSPredicate(format: "pkl_ID = \(self.PKL_ID)")
-
         fetchRequest.returnsObjectsAsFaults = false
         var error: NSError?
         
@@ -118,6 +122,8 @@ class Data: NSObject {
                     self.arrayGroupedScores = dataTemp!.arrayGroupedScores
                     self.changed = dataTemp!.changed
                     self.PKL_ID = dataTemp!.PKL_ID
+                    self.PKL_Name = dataTemp!.PKL_Name
+                    self.PKL_Link = dataTemp!.PKL_Link
                     self.rightToChangeData = dataTemp!.rightToChangeData
                     self.lastUpdate = dataTemp!.lastUpdate
                 }
@@ -128,6 +134,70 @@ class Data: NSObject {
         }
         return nil
     }
+    
+    func getPKL(PKL_Link: String, PKL_Password: String) -> Bool {
+        
+        // Personen
+        let tempLink = link + wsList + "?PKL_Link=\(PKL_Link)&PKL_Password=\(PKL_Password)"
+        let tempPath = NSURL(string: tempLink.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!)
+        println(tempPath)
+        if let path = tempPath {
+            
+            if let temp = NSData(contentsOfURL: path) {
+                if let arayJSON = NSJSONSerialization.JSONObjectWithData(temp, options: .MutableContainers, error: nil) as? [[String:NSObject]] {
+                    
+                    if arayJSON.count == 0 {
+                        return false
+                    }
+                    
+                    for dic in arayJSON {
+                        
+                        self.PKL_Name = vString(dic["PKL_Name"])
+                        self.PKL_ID = vInt(dic["PKL_ID"])
+                        self.PKL_Link = vString(dic["PKL_Link"])
+                        self.rightToChangeData = (PKL_Password != "")
+                        self.changed = true
+                        getAllData()
+                        return true
+                    }
+
+                }
+            }
+            
+        }
+        return false
+    }
+    
+    func addPKL(PKL_Name: String, PKL_Password: String) -> Bool {
+        
+        
+        let aString: String = "This is my string"
+        let newString = aString.stringByReplacingOccurrencesOfString(" ", withString: "+", options: NSStringCompareOptions.LiteralSearch, range: nil)
+
+        let link = "http://217.160.178.136/Service.asmx/addPKL?PKL_Name=\(PKL_Name)&PKL_Password=\(PKL_Password)"
+        println(link)
+        if let json = getJSONData(link) {
+            var tempError = NSJSONSerialization.JSONObjectWithData(json, options: .MutableContainers, error: &error) as! [[String:NSObject]]
+            
+            if error != nil {
+                println("ERROR: Fehler beim hinzufügen einer Person. \(error!.description)")
+            } else {
+            
+                let id = vInt(tempError[0]["id"])
+                
+                self.PKL_Name = PKL_Name
+                self.PKL_ID =  id
+                self.PKL_Link = "\(PKL_Name)\(id)"
+                self.rightToChangeData = true
+                self.changed = true
+                getAllData()
+            
+                return true
+            }
+        }
+        return false
+    }
+
     
     // Alle Daten beim erstmaligen hinzufügen laden
     func getAllData() {
@@ -177,6 +247,21 @@ class Data: NSObject {
         saveDataToCoreData()
     }
     
+    func removePKL() {
+        self.PKL_ID = 0
+        self.PKL_Name = ""
+        self.arrayGroupedResults.removeAll(keepCapacity: false)
+        self.arrayGroupedScores.removeAll(keepCapacity: false)
+        self.arrayPersons.removeAll(keepCapacity: false)
+        self.arrayResults.removeAll(keepCapacity: false)
+        self.arrayScores.removeAll(keepCapacity: false)
+        self.changed = true
+        self.rightToChangeData = false
+        self.lastUpdate = nil
+        saveDataToCoreData()
+    }
+
+    
     // MARK: - Personen Funktionen
     // Personen Array sortieren
     func sortArrayPersons() {
@@ -218,6 +303,9 @@ class Data: NSObject {
     // Person bearbeiten
     func updatePerson(index: Int, name: String) -> Bool {
 
+        let oldName = self.arrayPersons[index].name
+        let oldChanged = self.arrayPersons[index].changed
+        
         self.arrayPersons[index].name = name
         self.arrayPersons[index].changed = NSDate()
         
@@ -228,6 +316,9 @@ class Data: NSObject {
             saveDataToCoreData()
             
             return true
+        } else {
+            self.arrayPersons[index].name = oldName
+            self.arrayPersons[index].changed = oldChanged
         }
         return false
     }
@@ -257,6 +348,8 @@ class Data: NSObject {
     // Person löschen
     func deletePerson(index: Int) -> Bool {
         
+        let oldChanged = self.arrayPersons[index].changed
+
         self.arrayPersons[index].deleted = NSDate()
         self.arrayPersons[index].changed = NSDate()
         self.changed = true
@@ -276,6 +369,8 @@ class Data: NSObject {
             
             saveDataToCoreData()
             return true
+        } else {
+            self.arrayPersons[index].changed = oldChanged
         }
         return false
     }
@@ -331,6 +426,8 @@ class Data: NSObject {
     // Ergbnis löschen
     func deleteResult(oRES: Results) -> Bool {
         
+        let oldChanged = oRES.changed
+
         oRES.deleted = NSDate()
         oRES.changed = NSDate()
         
@@ -344,6 +441,8 @@ class Data: NSObject {
             saveDataToCoreData()
             self.changed = true
             return true
+        } else {
+            oRES.changed = oldChanged
         }
         return false
     }
@@ -377,6 +476,11 @@ class Data: NSObject {
     // Ergebnis bearbeiten
     func updateResult(oRES: Results, chipsIn: String, chipsOut: String) -> Bool {
 
+        
+        let oldChanged = oRES.changed
+        let oldChipsIn = oRES.chipsIn
+        let oldChipsOut = oRES.chipsOut
+
         oRES.changed = NSDate()
         oRES.chipsIn = vDouble(chipsIn)
         oRES.chipsOut = vDouble(chipsOut)
@@ -395,6 +499,10 @@ class Data: NSObject {
             self.changed = true
             saveDataToCoreData()
             return true
+        } else {
+            oRES.changed = oldChanged
+            oRES.chipsIn = oldChipsIn
+            oRES.chipsOut = oldChipsOut
         }
         return false
     }
@@ -623,7 +731,6 @@ class Data: NSObject {
         
         let dateFormat = "yyyyMMdd HH:mm:ss"
         let tempLink = link + wsLink + "?PKL_ID=\(PKL_ID)&lastUpdate=\(vString(lastUpdate, dateFormat: dateFormat))"
-        println(tempLink)
         let tempPath = NSURL(string: tempLink.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)!)
         
         if let path = tempPath {

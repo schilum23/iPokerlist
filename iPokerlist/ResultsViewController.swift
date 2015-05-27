@@ -204,6 +204,7 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
         
         var noErrors = true
         var zeroEntries = true
+        var noConnection = false
         for view in scrollView.subviews {
             if _stdlib_getDemangledTypeName(view) == "UILabel" {
                 
@@ -222,7 +223,10 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
                     noErrors = false
                 } else if succesfullValidated && textFieldIn.text != "" && textFieldOut.text != ""  {
                     
-                    data.addResult(iDatePicker.date, PER_ID: PER_ID, chipsIn: textFieldIn.text, chipsOut: textFieldOut.text)
+                    if !data.addResult(iDatePicker.date, PER_ID: PER_ID, chipsIn: textFieldIn.text, chipsOut: textFieldOut.text) {
+                        noConnection = true
+                        var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: true, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
+                    }
                 }
             }
         }
@@ -254,7 +258,7 @@ class ResultsViewController: UIViewController, UITextFieldDelegate, iUIDatePicke
 
         }
         
-        return noErrors && !zeroEntries
+        return noErrors && !zeroEntries && !noConnection
 
     }
     
