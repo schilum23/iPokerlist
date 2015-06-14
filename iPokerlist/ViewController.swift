@@ -310,7 +310,11 @@ class ViewController: UIViewController, UIScrollViewDelegate, UITableViewDelegat
             btnHeader.contentHorizontalAlignment = UIControlContentHorizontalAlignment.Left
             btnHeader.contentEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 0);
             btnHeader.backgroundColor = UIColorFromHex(0x3498db, alpha: 0.5)
-            return btnHeader
+            let view = UIView()
+            view.frame = btnHeader.frame
+            view.backgroundColor = UIColor.whiteColor()
+            view.addSubview(btnHeader)
+            return view
 
         default:
             return nil

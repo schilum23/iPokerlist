@@ -746,7 +746,6 @@ class Data: NSObject {
         return [[String:NSObject]]()
     }
     
-    
     // Ergebnise nach Datum gruppieren
     func groupBydate(#TempDaten: [Results]) {
         

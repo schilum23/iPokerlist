@@ -105,6 +105,8 @@ class SettingsViewController: UIViewController {
             } else {
                 if self.data.addPKL(vString(alert.textField1?.text), PKL_Password: vString(alert.textField2?.text)) {
                     self.dismissViewControllerAnimated(true, completion: nil)
+                } else {
+                    var alertview = AlertViewController().show(self, title: "Keine Interverbindung", text: "Es besteht keine Verbindung zum Server. Bitte das Internet aktivieren oder es in ein paar Minuten erneut probieren!", minusPos: true, buttonText: "OK", color: UIColorFromHex(0xe74c3c, alpha: 1))
                 }
 
             }
